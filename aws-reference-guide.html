@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS Reference Guide — Herramientas, Operaciones y Examen de Certificación</title>
+<style>
+:root {
+    --aws-orange: #FF9900; --aws-dark: #232F3E; --aws-blue: #146EB4;
+    --aws-light: #FAFAFA; --accent-green: #1AAB4B; --accent-red: #E74C3C;
+    --text: #333; --border: #D5DBDB; --radius: 6px; --shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: var(--text); background: var(--aws-light); line-height: 1.6; }
+
+/* HEADER */
+header { background: var(--aws-dark); color: white; padding: 2rem 1.5rem; border-bottom: 4px solid var(--aws-orange); }
+header h1 { font-size: 2rem; display: flex; align-items: center; gap: .6rem; }
+header h1 span { color: var(--aws-orange); }
+header p { margin-top: .4rem; opacity: .85; font-size: 1.05rem; }
+
+/* NAV */
+nav { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; padding: 0 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+nav a { text-decoration: none; color: var(--aws-blue); font-weight: 600; padding: .75rem 0; border-bottom: 3px solid transparent; transition: .2s; font-size: .95rem; cursor: pointer; }
+nav a:hover, nav a.active { border-bottom-color: var(--aws-orange); color: var(--aws-dark); }
+
+/* MAIN */
+main { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
+section { margin-bottom: 3rem; }
+section h2 { font-size: 1.6rem; color: var(--aws-dark); border-left: 5px solid var(--aws-orange); padding-left: .75rem; margin-bottom: 1rem; }
+section h3 { font-size: 1.2rem; color: var(--aws-blue); margin: 1.5rem 0 .6rem; }
+
+/* SERVICE FAMILY ACCORDION */
+.service-family { margin-bottom: .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; overflow: hidden; }
+.sf-header { background: var(--aws-dark); color: white; padding: .75rem 1rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 1rem; font-weight: 700; }
+.sf-header:hover { background: #344658; }
+.sf-header .sf-icon { font-size: 1.3rem; margin-right: .5rem; }
+.sf-header .sf-arrow { transition: .3s; font-size: .85rem; }
+.sf-header.open .sf-arrow { transform: rotate(180deg); }
+.sf-body { display: none; }
+.sf-body.open { display: block; }
+.sf-body table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.sf-body th { background: #F0F4F8; color: var(--aws-dark); padding: .55rem .8rem; text-align: left; font-weight: 600; font-size: .82rem; text-transform: uppercase; }
+.sf-body td { padding: .5rem .8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.sf-body tr:last-child td { border-bottom: none; }
+.sf-body tbody tr:hover { background: #FFF8F0; }
+.sf-body td:first-child { font-weight: 600; color: var(--aws-blue); white-space: nowrap; }
+.sf-body td:last-child { font-family: 'Fira Code','Cascadia Code',monospace; font-size: .82rem; color: var(--aws-dark); white-space: nowrap; }
+.sf-meta { padding: .6rem 1rem; background: #F8FAFB; border-top: 1px solid var(--border); font-size: .8rem; color: #666; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.2rem; align-items: center; }
+.filter-bar input { flex: 1; min-width: 220px; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: .9rem; }
+.filter-bar select { padding: .55rem .8rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: .9rem; }
+.filter-bar button { padding: .55rem 1rem; background: var(--aws-orange); color: white; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 600; font-size: .9rem; }
+.btn-secondary { background: var(--aws-dark) !important; }
+
+/* OPERATIONS CARDS */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.2rem; }
+.card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 1.2rem; transition: .2s; }
+.card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.card h4 { color: var(--aws-blue); margin-bottom: .4rem; font-size: 1.05rem; }
+.card .tag { display: inline-block; background: var(--aws-orange); color: white; border-radius: 20px; padding: .15rem .7rem; font-size: .78rem; font-weight: 600; margin-bottom: .6rem; }
+.card p, .card ul { font-size: .9rem; }
+.card ul { padding-left: 1.2rem; margin-top: .4rem; }
+
+/* QUESTIONS */
+.qa-list { counter-reset: qnum; }
+.qa { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: .8rem; padding: 1.2rem; counter-increment: qnum; transition: .2s; }
+.qa .q-title { font-weight: 700; color: var(--aws-dark); margin-bottom: .5rem; cursor: pointer; display: flex; align-items: center; gap: .5rem; }
+.qa .q-title::before { content: "Q" counter(qnum); background: var(--aws-orange); color: white; border-radius: 4px; padding: .2rem .55rem; font-size: .8rem; font-weight: 700; flex-shrink: 0; }
+.qa .q-text { margin-bottom: .7rem; }
+.qa .q-options { list-style: upper-alpha; padding-left: 1.8rem; margin-bottom: .6rem; }
+.qa .q-options li { padding: .15rem 0; font-family: 'Fira Code','Cascadia Code',monospace; font-size: .9rem; }
+.qa .q-answer { display: none; margin-top: .6rem; padding: .7rem 1rem; background: #E9F7EF; border-left: 4px solid var(--accent-green); border-radius: 4px; font-size: .9rem; }
+.qa.open .q-answer { display: block; }
+.correct-badge { display: none; }
+.qa.open .correct-badge { display: inline; }
+.qa.open li.correct-option { font-weight: 700; color: var(--accent-green); }
+.qa .show-btn { background: none; border: 1px solid var(--aws-blue); color: var(--aws-blue); padding: .25rem .8rem; border-radius: 4px; cursor: pointer; font-size: .82rem; font-weight: 600; }
+.qa .show-btn:hover { background: var(--aws-blue); color: white; }
+.qa .domain-tag { font-size: .75rem; background: #E8EAF0; border-radius: 10px; padding: .1rem .5rem; color: #555; margin-left: .5rem; }
+
+/* FOOTER */
+footer { background: var(--aws-dark); color: white; text-align: center; padding: 1.5rem; font-size: .85rem; margin-top: 2rem; }
+
+/* BACK TO TOP */
+#backTop { position: fixed; bottom: 2rem; right: 2rem; background: var(--aws-orange); color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.3rem; cursor: pointer; box-shadow: var(--shadow); display: none; z-index: 99; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .cards { grid-template-columns: 1fr; }
+    nav { gap: .8rem; }
+    header h1 { font-size: 1.5rem; }
+    .sf-body td:last-child { white-space: normal; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1><span>☁️</span> AWS Reference Guide</h1>
+<p>Guía de estudio: herramientas organizadas por servicio · operaciones · 80 preguntas de certificación</p>
+</header>
+
+<nav>
+<a href="#tools" class="active">🔧 Herramientas</a>
+<a href="#operations">⚙️ Operaciones</a>
+<a href="#exam">📝 Examen (80 Q)</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 1 — TOOLS BY SERVICE FAMILY                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="tools">
+<h2>1. Herramientas AWS organizadas por familia de servicio</h2>
+<p style="margin-bottom:1rem;">
+Cada servicio principal de AWS se muestra como un acordeón desplegable con sus <strong>componentes internos</strong>,
+recursos asociados, CLI y ubicación en consola. Estas son las herramientas que aparecen en las certificaciones
+<em>Solutions Architect Associate, SysOps Administrator</em> y <em>Developer Associate</em>.
+</p>
+<div class="filter-bar">
+    <input type="text" id="toolSearch" placeholder="🔍 Buscar herramienta en todas las familias...">
+    <select id="familyFilter"><option value="">Todas las familias</option></select>
+    <button onclick="expandAllFamilies()">Expandir todo</button>
+    <button class="btn-secondary" onclick="collapseAllFamilies()">Colapsar todo</button>
+</div>
+<div id="familiesContainer"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 2 — OPERATIONS                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="operations">
+<h2>2. Configuraciones y Herramientas de Operaciones AWS</h2>
+<p style="margin-bottom:1.2rem;">
+AWS Operations abarca los servicios para <strong>gestionar, monitorizar, automatizar y asegurar</strong>
+entornos a escala. A continuación, las herramientas clave agrupadas por dominio operacional.
+</p>
+
+<h3>🔍 Monitorización y Observabilidad</h3>
+<div class="cards" id="monitoringCards"></div>
+
+<h3>🛡️ Gobernanza y Cumplimiento</h3>
+<div class="cards" id="governanceCards"></div>
+
+<h3>🔧 Automatización y Gestión Operativa</h3>
+<div class="cards" id="automationCards"></div>
+
+<h3>🌐 Red y Conectividad</h3>
+<div class="cards" id="networkCards"></div>
+
+<h3>📊 Gestión de Costes</h3>
+<div class="cards" id="costCards"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECTION 3 — 80 EXAM QUESTIONS                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section id="exam">
+<h2>3. 80 Preguntas — Simulacro de Examen de Certificación</h2>
+<p style="margin-bottom:1rem;">
+Preguntas estilo <strong>Solutions Architect Associate / SysOps Administrator / Developer Associate</strong>.
+Haz clic en <em>"Mostrar respuesta"</em> para revelar la respuesta correcta y su explicación.
+</p>
+<div class="filter-bar">
+    <input type="text" id="questionSearch" placeholder="🔍 Buscar pregunta...">
+    <select id="domainFilter"><option value="">Todos los dominios</option></select>
+    <button onclick="expandAllQA()">Mostrar todas las respuestas</button>
+    <button class="btn-secondary" onclick="collapseAllQA()">Ocultar todas</button>
+</div>
+<div class="qa-list" id="questionsList"></div>
+</section>
+
+</main>
+
+<footer>AWS Reference Guide — Recurso de estudio para certificaciones AWS · ~230 herramientas y 80 preguntas · © 2026</footer>
+<button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆</button>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA: TOOLS BY SERVICE FAMILY
+// ═══════════════════════════════════════════════════════════
+const serviceFamilies = [
+{
+    name: "Amazon EC2 (Elastic Compute Cloud)",
+    icon: "🖥️", domain: "Compute",
+    desc: "Máquinas virtuales escalables. Servicio central de cómputo de AWS. Las certificaciones preguntan mucho sobre tipos de instancia, opciones de compra, placement groups y Auto Scaling.",
+    tools: [
+        ["Instancias EC2", "Máquina virtual que ejecuta un SO elegido (Amazon Linux, Ubuntu, Windows, etc.)", "Hosting web, servidores de apps, procesamiento batch", "aws ec2 run-instances"],
+        ["AMIs (Amazon Machine Images)", "Plantilla que contiene el SO, software y configuración para lanzar una instancia", "Estandarizar despliegues, crear imágenes doradas (golden AMI)", "aws ec2 create-image"],
+        ["Security Groups", "Firewall virtual stateful a nivel de instancia; reglas de allow por protocolo, puerto e IP", "Controlar tráfico entrante/saliente de instancias; arquitectura multi-tier", "aws ec2 authorize-security-group-ingress"],
+        ["Key Pairs", "Par de claves SSH para autenticarse en instancias Linux; AWS guarda la clave pública", "Acceso seguro a instancias sin contraseña", "aws ec2 create-key-pair"],
+        ["Elastic IPs", "Dirección IPv4 pública estática que puedes asociar a una instancia o ENI", "IP fija para instancias que necesitan endpoint público persistente", "aws ec2 allocate-address"],
+        ["Placement Groups", "Agrupación lógica de instancias: Cluster (baja latencia), Spread (tolerancia a fallos), Partition (grandes cargas distribuidas)", "HPC (cluster), apps críticas (spread), Hadoop/Kafka (partition)", "aws ec2 create-placement-group"],
+        ["ENIs (Elastic Network Interfaces)", "Interfaz de red virtual con IPs privadas, SG y MAC", "Mover IPs entre instancias, multi-homed instances", "aws ec2 create-network-interface"],
+        ["Instancias Spot", "Capacidad EC2 sobrante con hasta 90% descuento; AWS puede reclamarlas con 2 min de aviso", "Procesamiento batch, CI/CD, renderizado, cargas tolerantes a fallos", "aws ec2 request-spot-instances"],
+        ["Reserved Instances", "Compromiso de 1 o 3 años con hasta 72% descuento", "Cargas estables 24x7: servidores web, BD de producción", "aws ec2 purchase-reserved-instances-offering"],
+        ["Savings Plans", "Compromiso de uso ($/hora) flexible entre familias de instancias, regiones y servicios (EC2, Fargate, Lambda)", "Alternativa moderna a Reserved Instances, hasta 72% descuento", "aws savingsplans create-savings-plan"],
+        ["Dedicated Hosts / Instances", "Servidor físico dedicado a una sola cuenta; necesario para licencias BYOL", "Cumplimiento regulatorio, licencias de software propias", "aws ec2 allocate-hosts"],
+        ["Launch Templates", "Define configuración de lanzamiento reusable (AMI, tipo, SG, user data)", "Auto Scaling Groups, despliegues repetibles, versiones de config", "aws ec2 create-launch-template"],
+        ["User Data", "Script que se ejecuta en el primer arranque de la instancia (cloud-init)", "Automatizar instalación de software, configuraciones iniciales", "aws ec2 modify-instance-attribute --user-data"],
+        ["Instance Metadata Service (IMDSv2)", "Endpoint interno http://169.254.169.254 con metadatos de la instancia; v2 requiere token", "Obtener IAM role credentials, región, IP desde dentro de la instancia", "TOKEN=$(curl -X PUT ...)"],
+        ["EC2 Image Builder", "Crea, prueba y distribuye AMIs automáticamente con pipeline de build", "Golden AMI pipeline automatizado y versionado", "aws imagebuilder create-image-pipeline"],
+    ]
+},
+{
+    name: "Auto Scaling & Elastic Load Balancing",
+    icon: "⚖️", domain: "Compute",
+    desc: "Escalado automático y distribución de tráfico. Preguntas frecuentes sobre tipos de Load Balancer (ALB vs NLB), políticas de escalado y health checks.",
+    tools: [
+        ["Auto Scaling Group (ASG)", "Grupo de instancias EC2 que escala horizontalmente según demanda", "Mantener N instancias healthy, escalar por CPU/metrics/tráfico", "aws autoscaling create-auto-scaling-group"],
+        ["Launch Configuration / Template", "Define qué AMI, tipo de instancia y SG usar al lanzar nuevas instancias ASG", "Launch Template es la versión moderna (soporta versionado)", "aws autoscaling create-launch-configuration"],
+        ["Scaling Policies", "Target tracking (ej: CPU al 50%), Step scaling, Simple scaling, Scheduladas", "Ajustar capacidad automáticamente basado en métricas o calendario", "aws autoscaling put-scaling-policy"],
+        ["Application Load Balancer (ALB)", "Balanceador capa 7 (HTTP/HTTPS); enrutamiento por host, path, headers", "Microservicios, enrutamiento basado en URL, WebSockets", "aws elbv2 create-load-balancer --type application"],
+        ["Network Load Balancer (NLB)", "Balanceador capa 4 (TCP/UDP/TLS) de ultra-baja latencia; IPs estáticas", "Alto rendimiento, IP fija, TCP puro, millones de RPS", "aws elbv2 create-load-balancer --type network"],
+        ["Gateway Load Balancer (GWLB)", "Balanceador capa 3 que inserta appliances virtuales de red en la ruta de tráfico", "Firewalls, IDS/IPS, inspección profunda de paquetes", "aws elbv2 create-load-balancer --type gateway"],
+        ["Target Groups", "Agrupación de destinos (EC2, IP, Lambda) para enrutar tráfico desde ELB", "Registro automático de instancias ASG, health checks por grupo", "aws elbv2 create-target-group"],
+    ]
+},
+{
+    name: "Amazon S3 (Simple Storage Service)",
+    icon: "🪣", domain: "Storage",
+    desc: "Almacenamiento de objetos con durabilidad 99.999999999% (11 nueves). Aparece en TODOS los exámenes: storage classes, versioning, lifecycle, replication, encryption, pre-signed URLs.",
+    tools: [
+        ["S3 Buckets", "Contenedor raíz donde se almacenan objetos; nombre global único", "Data lakes, hosting estático, backups, distribución de contenido", "aws s3 mb (make bucket)"],
+        ["Objetos S3", "Archivo + metadata + clave única; tamaño máximo 5 TB (multipart)", "Almacenar cualquier tipo de archivo: imágenes, logs, backups, JSON", "aws s3 cp / sync / mv"],
+        ["Versioning", "Mantiene múltiples variantes de un objeto; protege contra eliminación accidental", "Recuperar versiones anteriores, protección contra ransomware", "aws s3api put-bucket-versioning"],
+        ["S3 Standard", "Clase por defecto: baja latencia, alta durabilidad, 3 AZs", "Datos accedidos frecuentemente: sitios web, streaming, apps", "aws s3 cp --storage-class STANDARD"],
+        ["S3 Intelligent-Tiering", "Mueve objetos automáticamente entre Standard e IA según patrones de acceso", "Datos con acceso impredecible o cambiante, sin coste de recuperación", "aws s3 cp --storage-class INTELLIGENT_TIERING"],
+        ["S3 Standard-IA", "Acceso infrecuente pero inmediato cuando se requiere; menor coste de GB, cobra por recuperación", "Backups, archivos de recuperación de desastres, datos antiguos", "aws s3 cp --storage-class STANDARD_IA"],
+        ["S3 One Zone-IA", "Como Standard-IA pero en una sola AZ; 20% más barato", "Datos recreables o copias secundarias; no críticos para disponibilidad", "aws s3 cp --storage-class ONEZONE_IA"],
+        ["S3 Glacier Instant Retrieval", "Archivo de larga duración con recuperación en milisegundos; ~68% más barato que Standard", "Imágenes médicas, archivos de noticias; acceso raro pero inmediato", "aws s3 cp --storage-class GLACIER_IR"],
+        ["S3 Glacier Flexible Retrieval", "Archivo frío: recuperación en minutos/horas (Expedited, Standard, Bulk)", "Archivos de compliance, backups antiguos; recuperación planificada", "aws s3 cp --storage-class GLACIER"],
+        ["S3 Glacier Deep Archive", "Almacenamiento más barato de AWS; recuperación en 12-48 horas", "Cumplimiento normativo a largo plazo (7-10 años), datos que casi nunca se tocan", "aws s3 cp --storage-class DEEP_ARCHIVE"],
+        ["Lifecycle Policies", "Reglas automáticas para transicionar objetos entre clases o expirarlos", "Mover a Glacier tras 30 días, eliminar tras 365 días automáticamente", "aws s3api put-bucket-lifecycle-configuration"],
+        ["Cross-Region Replication (CRR)", "Replicación asíncrona de objetos a otro bucket en otra región", "DR multi-región, cumplimiento geográfico, reducir latencia para usuarios globales", "aws s3api put-bucket-replication"],
+        ["Same-Region Replication (SRR)", "Replicación dentro de la misma región; útil para copia a otra cuenta", "Separar datos de producción y analytics, cumplir con políticas de retención", "aws s3api put-bucket-replication"],
+        ["S3 Transfer Acceleration", "Acelera subidas a S3 usando los puntos de borde de CloudFront", "Subir archivos grandes desde ubicaciones lejanas a la región del bucket", "aws s3api put-bucket-accelerate-configuration"],
+        ["Pre-Signed URLs", "URL temporal que concede acceso a un objeto S3 sin credenciales AWS", "Compartir archivos con externos sin hacer público el bucket", "aws s3 presign s3://bucket/key --expires-in 3600"],
+        ["S3 Object Lock", "Bloquea objetos contra eliminación o sobrescritura durante un periodo (WORM)", "Cumplimiento regulatorio (ej: SEC Rule 17a-4, FINRA)", "aws s3api put-object-lock-configuration"],
+        ["S3 Access Points", "Endpoints con políticas IAM y de red específicas para acceder a datos compartidos", "Simplificar acceso multiequipo a un mismo bucket con políticas distintas", "aws s3control create-access-point"],
+        ["S3 Event Notifications", "Dispara eventos a SNS, SQS o Lambda al crear/eliminar objetos", "Procesar imágenes al subirlas, indexar metadatos en DynamoDB", "aws s3api put-bucket-notification-configuration"],
+        ["S3 Storage Lens", "Dashboard de analítica de uso y actividad de almacenamiento S3 a nivel organización", "Identificar datos no utilizados, optimizar costes de almacenamiento", "aws s3control get-storage-lens-configuration"],
+        ["S3 Select & Glacier Select", "Consulta SQL sobre un objeto S3 sin descargarlo entero (CSV, JSON, Parquet)", "Filtrar columnas/rows de archivos grandes sin transferir todo el objeto", "aws s3api select-object-content"],
+    ]
+},
+{
+    name: "Amazon EBS (Elastic Block Store)",
+    icon: "💾", domain: "Storage",
+    desc: "Discos de bloque persistentes para EC2. Tipos de volumen (gp3, io2, st1, sc1), snapshots, cifrado y rendimiento son preguntas de examen muy comunes.",
+    tools: [
+        ["gp3 (General Purpose SSD)", "SSD balance precio/rendimiento; 3000 IOPS y 125 MB/s base, escalable independientemente", "Mayoría de cargas: boot volumes, apps, dev/test, BD pequeñas", "aws ec2 create-volume --volume-type gp3"],
+        ["io2 / io2 Block Express", "SSD de máximo rendimiento; latencia sub-milisegundo, hasta 256K IOPS", "OLTP, NoSQL, BD críticas de alta IOPS", "aws ec2 create-volume --volume-type io2"],
+        ["st1 (Throughput Optimized HDD)", "HDD para streaming de datos; bajo coste, alto throughput (500 MB/s)", "Data warehouses, procesamiento de logs, ETL", "aws ec2 create-volume --volume-type st1"],
+        ["sc1 (Cold HDD)", "El HDD más barato; acceso infrecuente a grandes volúmenes de datos", "Archivos antiguos, backups fríos, datos con acceso muy infrecuente", "aws ec2 create-volume --volume-type sc1"],
+        ["Snapshots", "Copia incremental del volumen almacenada en S3 (no visible como bucket)", "Backups de volúmenes, migrar entre AZs/regiones, crear AMIs", "aws ec2 create-snapshot"],
+        ["EBS Multi-Attach", "Un volumen io1/io2 conectado a múltiples instancias EC2 a la vez", "Clusters de alta disponibilidad con almacenamiento compartido", "aws ec2 attach-volume"],
+        ["EBS Fast Snapshot Restore (FSR)", "Restaura instantánea de snapshots a volúmenes sin inicialización perezosa", "Recuperación rápida de desastres, entornos de prueba", "aws ec2 enable-fast-snapshot-restores"],
+        ["EBS Encryption", "Cifrado en reposo integrado con KMS; transparente para la instancia", "Cumplimiento de seguridad, sin impacto de rendimiento", "aws ec2 create-volume --encrypted"],
+    ]
+},
+{
+    name: "Amazon EFS (Elastic File System)",
+    icon: "📁", domain: "Storage",
+    desc: "Sistema de archivos NFS elástico y serverless que escala automáticamente. Múltiples instancias pueden leer/escribir simultáneamente.",
+    tools: [
+        ["EFS File System", "NFSv4.1 gestionado; elástico (crece/encoge con los datos); multi-AZ", "Compartir datos entre múltiples EC2; WordPress escalable; CI/CD shared storage", "aws efs create-file-system"],
+        ["EFS Mount Targets", "Endpoint en cada AZ que permite montar EFS desde instancias en esa subred", "Cada AZ debe tener un mount target; se crea en subred privada", "aws efs create-mount-target"],
+        ["EFS Storage Classes", "Standard (multi-AZ, frecuente) e Infrequent Access (con Lifecycle Management)", "Ahorrar costes moviendo archivos antiguos a EFS-IA automáticamente", "aws efs put-lifecycle-configuration"],
+        ["EFS Access Points", "Punto de entrada con política IAM, identidad POSIX y directorio raíz específicos", "Aislar aplicaciones que comparten el mismo sistema de archivos", "aws efs create-access-point"],
+    ]
+},
+{
+    name: "Amazon VPC (Virtual Private Cloud)",
+    icon: "🌐", domain: "Networking",
+    desc: "Red virtual aislada. LA sección más importante de networking en el examen: subnets, route tables, NAT, VPC endpoints, peering, Transit Gateway, VPN, SG vs NACL.",
+    tools: [
+        ["VPC", "Red virtual aislada con bloque CIDR propio (ej: 10.0.0.0/16)", "Segmentar entornos (prod, staging, dev), arquitectura multi-tier", "aws ec2 create-vpc"],
+        ["Subredes (Subnets)", "Rango IP dentro de la VPC; pueden ser públicas (con IGW) o privadas", "Separar capas: web en pública, BD en privada", "aws ec2 create-subnet"],
+        ["Internet Gateway (IGW)", "Permite comunicación bidireccional entre la VPC e Internet", "Requisito indispensable para que una subred sea pública", "aws ec2 create-internet-gateway"],
+        ["NAT Gateway", "Permite que instancias en subredes privadas inicien tráfico saliente a Internet", "Actualizaciones de SO desde instancias privadas sin exponerlas a Internet", "aws ec2 create-nat-gateway"],
+        ["NAT Instance", "Instancia EC2 que actúa como NAT (versión antigua y gestionada por usuario)", "Caso legacy; se prefiere NAT Gateway para producción", "aws ec2 run-instances + configuración manual"],
+        ["Route Tables", "Conjunto de reglas que determinan hacia dónde va el tráfico desde una subred", "Enrutar tráfico público por IGW, privado por NAT, VPC peering por destino", "aws ec2 create-route"],
+        ["Network ACLs (NACL)", "Firewall stateless a nivel de subred; reglas numeradas (allow/deny)", "Bloquear IPs específicas a nivel de subred (los SG solo permiten allow)", "aws ec2 create-network-acl"],
+        ["Security Groups (SG)", "Firewall stateful a nivel de instancia/ENI; solo permiten reglas de allow", "Control granular de tráfico por instancia; auto-permite tráfico de retorno", "aws ec2 create-security-group"],
+        ["VPC Peering", "Conexión directa entre dos VPCs (incluso cross-region, cross-account)", "Compartir recursos entre VPCs sin pasar por Internet", "aws ec2 create-vpc-peering-connection"],
+        ["Transit Gateway", "Hub central para interconectar múltiples VPCs, VPN y Direct Connect", "Arquitectura hub-and-spoke para cientos de VPCs", "aws ec2 create-transit-gateway"],
+        ["VPC Endpoints (Gateway)", "Acceso privado a S3 y DynamoDB desde la VPC sin Internet (gratis)", "Evitar tráfico por Internet para acceder a S3/DynamoDB; más seguro y barato", "aws ec2 create-vpc-endpoint --service-name com.amazonaws.region.s3"],
+        ["VPC Endpoints (Interface)", "Acceso privado a la mayoría de servicios AWS usando PrivateLink (ENI en tu VPC)", "Acceder a cualquier servicio AWS desde subredes privadas; $/hora", "aws ec2 create-vpc-endpoint --service-name com.amazonaws.region.ssm"],
+        ["AWS PrivateLink", "Expone tu servicio a otras cuentas/VPCs sin exponerlo a Internet", "SaaS privado, compartir servicios entre cuentas sin peering", "aws ec2 create-vpc-endpoint-service-configuration"],
+        ["VPN (Site-to-Site)", "Túnel IPsec entre tu datacenter y AWS a través de Internet", "Conexión híbrida rápida y económica sin Direct Connect", "aws ec2 create-vpn-connection"],
+        ["Direct Connect", "Conexión de fibra dedicada privada entre on-premises y AWS", "Conexión estable, consistente y segura; evita Internet", "aws directconnect create-connection"],
+        ["Direct Connect Gateway", "Permite que una conexión Direct Connect acceda a VPCs en múltiples regiones", "Arquitectura híbrida multi-región con una sola conexión física", "aws directconnect create-direct-connect-gateway"],
+        ["VPC Flow Logs", "Captura tráfico IP que entra y sale de las interfaces de red de la VPC", "Auditoría de tráfico, detección de anomalías, troubleshooting de conectividad", "aws ec2 create-flow-logs"],
+        ["Egress-Only Internet Gateway", "Permite tráfico saliente IPv6 hacia Internet bloqueando tráfico entrante", "Equivalente IPv6 del NAT Gateway; solo para tráfico IPv6 saliente", "aws ec2 create-egress-only-internet-gateway"],
+        ["Customer Gateway (CGW)", "Representa el dispositivo on-premises en una conexión VPN", "Configurar el extremo local de una VPN Site-to-Site", "aws ec2 create-customer-gateway"],
+        ["DHCP Options Sets", "Configura servidores DNS, NTP y nombre de dominio para instancias en la VPC", "Usar DNS on-premises o personalizado en instancias EC2", "aws ec2 create-dhcp-options"],
+    ]
+},
+{
+    name: "Amazon Route 53",
+    icon: "🧭", domain: "Networking",
+    desc: "DNS escalable, registro de dominios y health checks. Las políticas de enrutamiento (simple, weighted, latency, failover, geolocation, geoproximity, multi-value) son ESENCIALES para el examen.",
+    tools: [
+        ["Hosted Zones (pública/privada)", "Contenedor de registros DNS para un dominio; pública (Internet) o privada (solo VPC)", "Gestionar DNS de dominios web y DNS interno de VPCs", "aws route53 create-hosted-zone"],
+        ["Registros (Records)", "Asignan nombres de dominio a recursos: A, AAAA, CNAME, ALIAS, MX, TXT, NS", "Apuntar dominio a ELB, CloudFront, S3; ALIAS para apex domain", "aws route53 change-resource-record-sets"],
+        ["Alias Records", "Registro especial de AWS (gratis) que apunta a ELB, CloudFront, S3 y más", "Mapear el apex domain (sin www) a un ALB o CloudFront", "aws route53 change-resource-record-sets"],
+        ["Política Simple", "Un solo destino; no soporta health checks", "Entornos sencillos con un solo endpoint", "aws route53 change-resource-record-sets"],
+        ["Política Weighted", "Distribuye tráfico por pesos (ej: 80% región A, 20% región B)", "Despliegue canary, blue/green, migraciones graduales", "aws route53 change-resource-record-sets"],
+        ["Política Latency", "Enruta al endpoint con menor latencia para el usuario", "Aplicaciones globales optimizadas por latencia", "aws route53 change-resource-record-sets"],
+        ["Política Failover (activo/pasivo)", "Enruta a primario; si health check falla, cambia al secundario", "DR activo-pasivo; failover automático entre regiones", "aws route53 change-resource-record-sets"],
+        ["Política Geolocation", "Enruta según la ubicación geográfica de origen del usuario", "Contenido localizado, restricciones geográficas", "aws route53 change-resource-record-sets"],
+        ["Política Geoproximity", "Enruta según ubicación + bias ajustable (expande/contrae área de influencia)", "Shift de tráfico controlado entre regiones con flexibilidad fina", "aws route53 change-resource-record-sets"],
+        ["Política Multi-Value Answer", "Devuelve múltiples IPs healthy (como round-robin + health checks)", "Alta disponibilidad con health checks en múltiples endpoints", "aws route53 change-resource-record-sets"],
+        ["Health Checks", "Monitoriza endpoints HTTP/HTTPS/TCP y los marca healthy/unhealthy", "Combinar con políticas failover para DR automático", "aws route53 create-health-check"],
+        ["Route 53 Resolver", "Servicio de resolución DNS híbrido entre VPC y on-premises", "Resolver nombres on-premises desde AWS y viceversa", "aws route53resolver create-resolver-endpoint"],
+    ]
+},
+{
+    name: "Amazon CloudFront",
+    icon: "🌍", domain: "Networking",
+    desc: "CDN global con 400+ puntos de presencia. Cachea contenido estático y dinámico cerca del usuario. Lambda@Edge y CloudFront Functions permiten personalización en el borde.",
+    tools: [
+        ["Distribuciones (Web/RTMP)", "Configuración de CDN: origen, cache behaviors, restricciones, SSL", "Acelerar sitios web, streaming, APIs con baja latencia global", "aws cloudfront create-distribution"],
+        ["Origins", "Origen del contenido: S3 bucket, ELB, EC2, MediaStore, endpoint HTTP externo", "Definir de dónde CloudFront obtiene el contenido original", "aws cloudfront update-distribution"],
+        ["Cache Behaviors", "Reglas de caché por patrón de path (/images/*, /api/*, *.js)", "Cachear estáticos agresivamente, no cachear /api/ dinámicos", "aws cloudfront create-distribution + behaviors"],
+        ["Cache Policies & Origin Request Policies", "Define qué headers/cookies/query strings se incluyen en la cache key", "Cachear basado en Accept-Language para contenido localizado", "aws cloudfront create-cache-policy"],
+        ["Lambda@Edge", "Ejecuta funciones Lambda en puntos de borde CloudFront (viewer request/response, origin request/response)", "A/B testing, redirecciones, autenticación JWT, inyección de headers", "aws lambda create-function + CloudFront trigger"],
+        ["CloudFront Functions", "Funciones ligeras en el borde para tareas de baja latencia (sub-ms)", "URL rewrites, header manipulation, redirects simples", "aws cloudfront create-function"],
+        ["OAI / OAC (Origin Access Control)", "Restringe acceso directo a S3: solo CloudFront puede leer del bucket", "Servir contenido privado de S3 sin hacer el bucket público", "aws cloudfront create-cloud-front-origin-access-identity"],
+        ["Field-Level Encryption", "Cifra campos sensibles (PII) en el borde antes de enviar al origen", "Protección adicional de datos sensibles en tránsito", "aws cloudfront create-field-level-encryption-config"],
+        ["Geo-Restriction", "Permite/bloquea acceso desde países específicos (whitelist/blacklist)", "Cumplimiento de licencias, restricciones geográficas de contenido", "aws cloudfront update-distribution + geo restriction"],
+    ]
+},
+{
+    name: "AWS IAM (Identity & Access Management)",
+    icon: "🔑", domain: "Security",
+    desc: "Control de acceso. TODO en AWS interactúa con IAM. Roles, Policies, Permission Boundaries, STS, Access Analyzer, y las mejores prácticas son preguntas seguras en el examen.",
+    tools: [
+        ["IAM Users", "Identidad permanente para personas; credenciales de larga duración", "Usuarios individuales con acceso a consola y/o CLI", "aws iam create-user"],
+        ["IAM Groups", "Agrupación de usuarios con mismas políticas asignadas", "Equipos: Developers, Admins, ReadOnly", "aws iam create-group"],
+        ["IAM Roles", "Identidad temporal con permisos; asumida por servicios o usuarios", "EC2 accede a S3, Lambda accede a DynamoDB, acceso cross-account", "aws iam create-role"],
+        ["IAM Policies", "Documento JSON que define permisos (Allow/Deny) sobre acciones y recursos", "Políticas managed (AWS-managed y customer-managed) e inline", "aws iam create-policy"],
+        ["Permission Boundaries", "Límite máximo de permisos de un rol/usuario aunque tenga más policies", "Delegar administración segura; un admin puede crear roles pero limitados", "aws iam put-user-permissions-boundary"],
+        ["STS (Security Token Service)", "Emite credenciales temporales para roles (AssumeRole, GetSessionToken)", "Acceso cross-account, federación SAML/OIDC", "aws sts assume-role"],
+        ["Access Analyzer", "Analiza recursos y genera hallazgos sobre accesos externos no intencionados", "Auditar S3 buckets, KMS keys, IAM roles accesibles desde fuera de la cuenta", "aws accessanalyzer create-analyzer"],
+        ["IAM Identity Center (antes SSO)", "Single Sign-On multi-cuenta; integración con Microsoft AD, Okta, etc.", "Portal único de acceso a múltiples cuentas AWS", "aws sso-admin create-instance"],
+        ["IAM Roles Anywhere", "Permite a workloads fuera de AWS (on-prem, otras nubes) asumir roles IAM con certificados X.509", "CI/CD pipelines on-premises que necesitan acceso temporal a S3", "aws rolesanywhere create-trust-anchor"],
+        ["MFA (Multi-Factor Authentication)", "Segundo factor de autenticación: dispositivo virtual, U2F, hardware TOTP", "Proteger root user y usuarios privilegiados", "aws iam enable-mfa-device"],
+        ["Credential Report", "Informe CSV con estado de credenciales de todos los usuarios", "Auditar contraseñas antiguas, MFA habilitado, access keys rotadas", "aws iam generate-credential-report"],
+    ]
+},
+{
+    name: "AWS KMS & Secrets Manager",
+    icon: "🔐", domain: "Security",
+    desc: "Cifrado y gestión de secretos. Las preguntas sobre CMKs, key rotation, envelope encryption y Secrets Manager vs Parameter Store aparecen con frecuencia.",
+    tools: [
+        ["CMKs (Customer Master Keys)", "Claves de cifrado gestionadas por KMS: AWS-managed (gratis por servicio) y Customer-managed ($1/mes)", "Cifrar S3, EBS, RDS, Secrets Manager, SQS, SNS con clave propia", "aws kms create-key"],
+        ["Key Policies", "Política JSON que controla quién puede administrar/usar la clave (similar a resource policies)", "Control granular de acceso a claves de cifrado; cross-account", "aws kms put-key-policy"],
+        ["Envelope Encryption", "Cifra datos con data key; la data key se cifra con la CMK (se almacena junto a los datos)", "Cifrar grandes volúmenes eficientemente sin llamar a KMS por cada byte", "aws kms generate-data-key"],
+        ["KMS Automatic Key Rotation", "Rota automáticamente las CMKs cada año (solo Customer-managed simétricas)", "Cumplimiento de políticas de rotación de claves", "aws kms enable-key-rotation"],
+        ["Secrets Manager", "Almacena y rota secretos (credenciales BD, API keys) automáticamente", "Rotación automática de contraseñas RDS, Redshift, DocumentDB", "aws secretsmanager create-secret"],
+        ["Parameter Store", "Almacén jerárquico de configuración: String, StringList, SecureString (cifrado KMS)", "Feature flags, endpoints de BD, secretos simples (más barato que Secrets Manager)", "aws ssm put-parameter"],
+    ]
+},
+{
+    name: "Servicios de Seguridad Adicionales",
+    icon: "🛡️", domain: "Security",
+    desc: "Servicios de protección, detección y respuesta. WAF, Shield, GuardDuty, Inspector, Macie y Security Hub son preguntas comunes en la certificación de seguridad.",
+    tools: [
+        ["AWS WAF", "Firewall de aplicaciones web; protege contra SQL injection y XSS", "Asociar a CloudFront, ALB, API Gateway o AppSync", "aws wafv2 create-web-acl"],
+        ["AWS Shield Standard / Advanced", "Protección DDoS: Standard (gratis, automática, capa 3/4) y Advanced ($3000/mes, cost protection)", "Protección avanzada para aplicaciones críticas; DRT (equipo de respuesta)", "aws shield describe-protection"],
+        ["GuardDuty", "Detección de amenazas con ML analizando CloudTrail, VPC Flow Logs y DNS logs", "Detectar cryptojacking, accesos anómalos, malware en EC2", "aws guardduty create-detector"],
+        ["Amazon Inspector", "Escaneo automatizado de vulnerabilidades de red y SO en EC2 y registros de contenedores", "Identificar CVEs, puertos abiertos no intencionados, configuraciones inseguras", "aws inspector2 enable"],
+        ["Amazon Macie", "Descubre, clasifica y protege datos confidenciales (PII) en S3 con ML", "Alertar si un bucket S3 contiene datos de tarjeta de crédito sin cifrar", "aws macie2 create-classification-job"],
+        ["Security Hub", "Dashboard centralizado de hallazgos de seguridad de GuardDuty, Inspector, Macie, Config", "Panel único de postura de seguridad con estándares CIS y AWS Foundations", "aws securityhub enable-security-hub"],
+        ["Cognito", "Directorios de usuarios escalables; User Pools (auth) e Identity Pools (federación)", "Sign-up/sign-in llave en mano para aplicaciones web/móviles", "aws cognito-idp create-user-pool"],
+        ["AWS Certificate Manager (ACM)", "Provee, gestiona y renueva certificados SSL/TLS gratis", "Certificados SSL para ALB, CloudFront, API Gateway", "aws acm request-certificate"],
+        ["AWS Firewall Manager", "Administra reglas WAF y Shield de forma centralizada en múltiples cuentas", "Asegurar que todas las apps tengan WAF habilitado en una organización", "aws fms put-policy"],
+        ["AWS Network Firewall", "Firewall gestionado con filtrado profundo de paquetes (IDS/IPS) a nivel VPC", "Inspeccionar y filtrar tráfico VPC con reglas Suricata", "aws network-firewall create-firewall"],
+        ["AWS Artifact", "Portal de informes de compliance (SOC, PCI, ISO) y acuerdos legales", "Descargar documentación para auditorías; aceptar acuerdos como HIPAA BAA", "Consola AWS → Artifact"],
+    ]
+},
+{
+    name: "AWS Lambda",
+    icon: "λ", domain: "Serverless",
+    desc: "FaaS — ejecuta código sin servidores. Preguntas frecuentes: concurrencia, cold starts, timeout (15 min), layers, alias/versiones, integraciones con API Gateway, S3 y DynamoDB.",
+    tools: [
+        ["Lambda Functions", "Código que se ejecuta en respuesta a eventos; soporta Node.js, Python, Java, Go, .NET, Ruby, Rust", "APIs serverless, procesamiento de eventos, automatizaciones", "aws lambda create-function"],
+        ["Lambda Layers", "Paquete reutilizable de librerías, dependencias o datos compartidos entre funciones", "Compartir SDKs, utilidades o dependencias grandes entre funciones", "aws lambda publish-layer-version"],
+        ["Lambda Alias & Versions", "Versiones inmutables ($LATEST no lo es) y aliases que apuntan a una versión", "Blue/green deployment en Lambda, canary con pesos entre alias", "aws lambda create-alias"],
+        ["Event Source Mappings", "Conecta una función Lambda a una fuente de eventos: SQS, DynamoDB Streams, Kinesis, Kafka", "Lambda procesa mensajes SQS o registros DynamoDB automáticamente", "aws lambda create-event-source-mapping"],
+        ["Lambda@Edge", "Ejecuta Lambda en puntos de borde CloudFront; solo Node.js/Python; timeout 5-30s", "Personalizar contenido CDN en el borde para cada request", "aws lambda create-function + CloudFront trigger"],
+        ["Provisioned Concurrency", "Mantiene N entornos pre-inicializados para eliminar cold starts", "APIs de baja latencia, aplicaciones sensibles a cold start", "aws lambda put-provisioned-concurrency-config"],
+        ["Reserved Concurrency", "Limita el número máximo de ejecuciones concurrentes de una función", "Proteger recursos downstream (ej: no saturar una BD con muchas conexiones)", "aws lambda put-function-concurrency"],
+        ["Lambda Destinations", "Envía resultado de ejecución (éxito/fallo) a SQS, SNS, Lambda o EventBridge", "Manejo de errores asíncrono sin código extra en la función", "aws lambda create-function + destination config"],
+        ["Lambda Power Tuning", "Herramienta (open-source) para encontrar la configuración óptima de memoria/coste", "Optimizar coste/rendimiento de funciones sin adivinar la memoria ideal", "aws lambda invoke + AWS Lambda Power Tuning tool"],
+    ]
+},
+{
+    name: "Amazon ECS & EKS (Contenedores)",
+    icon: "🐳", domain: "Compute",
+    desc: "Orquestación de contenedores. ECS (gestión AWS) vs EKS (Kubernetes gestionado). Fargate es el modo serverless para ambos.",
+    tools: [
+        ["ECS Clusters", "Agrupación lógica de servicios y tareas; puede usar EC2 o Fargate", "Microservicios containerizados, APIs, procesamiento batch", "aws ecs create-cluster"],
+        ["Task Definitions", "BluePrint JSON del contenedor: imagen Docker, CPU/memoria, puertos, mounts, variables", "Definir qué contenedores y cómo se ejecutan; versionado", "aws ecs register-task-definition"],
+        ["ECS Services", "Mantiene N tareas corriendo; integración con ALB, Auto Scaling, Service Discovery", "Servicios web de larga duración con balanceo de carga", "aws ecs create-service"],
+        ["ECS Tasks (standalone)", "Ejecución única de una task definition (sin servicio); ideal para batch jobs", "Procesamiento batch, migraciones one-off, tareas programadas", "aws ecs run-task"],
+        ["Fargate", "Serverless para ECS/EKS: no gestionas instancias EC2; pago por vCPU/memoria", "Ejecutar contenedores sin preocuparse de la infraestructura subyacente", "aws ecs create-service --launch-type FARGATE"],
+        ["EKS (Elastic Kubernetes Service)", "Kubernetes gestionado: AWS gestiona el control plane (master); tú gestionas los workers", "Equipos que ya usan K8s y quieren beneficio de gestión del control plane", "aws eks create-cluster"],
+        ["EKS Fargate", "Pods de Kubernetes ejecutados en Fargate (sin nodos EC2 que gestionar)", "K8s totalmente serverless; sin administrar worker nodes", "aws eks create-fargate-profile"],
+        ["ECR (Elastic Container Registry)", "Registro privado de imágenes Docker; integrado con ECS/EKS/IAM", "Almacenar, versionar y desplegar imágenes de contenedor", "aws ecr create-repository"],
+        ["ECS Service Connect", "Service mesh integrado en ECS para comunicación service-to-service", "Descubrimiento, enrutamiento y observabilidad entre servicios ECS", "aws ecs create-service + serviceConnectConfiguration"],
+    ]
+},
+{
+    name: "Amazon RDS & Aurora",
+    icon: "🗄️", domain: "Database",
+    desc: "Bases de datos relacionales gestionadas. Multi-AZ, Read Replicas, snapshots automáticos, y diferencias entre RDS y Aurora son preguntas clásicas del examen.",
+    tools: [
+        ["RDS DB Instances", "Instancia de base de datos gestionada: MySQL, PostgreSQL, Oracle, SQL Server, MariaDB", "Aplicaciones web, ERPs, CRMs — BD relacional sin gestión de parches", "aws rds create-db-instance"],
+        ["Multi-AZ Deployment", "Instancia standby sincrónica en otra AZ; failover automático (<2 min)", "Alta disponibilidad para producción; no es para escalado de lectura", "aws rds create-db-instance --multi-az"],
+        ["Read Replicas", "Copias asíncronas de solo lectura (hasta 15); cross-AZ, cross-region", "Escalar cargas de lectura, reporting, descargar la instancia principal", "aws rds create-db-instance-read-replica"],
+        ["RDS Proxy", "Pool de conexiones gestionado que reduce la carga en BD serverless/Lambda", "Aplicaciones serverless con muchas conexiones cortas a RDS/Aurora", "aws rds create-db-proxy"],
+        ["DB Parameter Groups", "Configuración a nivel de motor de BD (max_connections, timezone, etc.)", "Tuning de base de datos replicable entre instancias", "aws rds create-db-parameter-group"],
+        ["DB Subnet Groups", "Define qué subredes usa RDS (mínimo 2 AZs para Multi-AZ)", "Controlar en qué AZs se despliega la BD", "aws rds create-db-subnet-group"],
+        ["Snapshots (automáticos y manuales)", "Automáticos: diarios, retención 1-35 días; Manuales: a demanda, persisten tras borrar BD", "Backups y restauración point-in-time (PITR)", "aws rds create-db-snapshot"],
+        ["RDS Enhanced Monitoring", "Métricas a nivel de SO (CPU, memoria, procesos) cada 1-60 segundos", "Diagnóstico de rendimiento granular más allá de CloudWatch estándar", "aws rds modify-db-instance --monitoring-interval"],
+        ["Performance Insights", "Dashboard de carga de BD: qué queries consumen más, wait events", "Identificar cuellos de botella de rendimiento de base de datos", "aws rds modify-db-instance --enable-performance-insights"],
+        ["Aurora DB Cluster", "Motor compatible con MySQL/PostgreSQL con 5x-3x rendimiento y almacenamiento auto-escalable (128 TiB)", "Aplicaciones empresariales de alta exigencia", "aws rds create-db-cluster --engine aurora-mysql"],
+        ["Aurora Serverless v2", "Aurora que escala automáticamente (ACU: Aurora Capacity Units); ideal cargas intermitentes", "Aplicaciones con picos impredecibles; pago por uso en lugar de instancias fijas", "aws rds create-db-cluster --serverless-v2-scaling-configuration"],
+        ["Aurora Global Database", "1 primaria + hasta 5 secundarias cross-region con latencia <1s", "DR multi-región, baja latencia de lectura global", "aws rds create-db-cluster --global-cluster-identifier"],
+        ["RDS Custom", "RDS con acceso al SO subyacente; para Oracle y SQL Server", "Aplicaciones legacy que requieren acceso al SO o configuraciones especiales", "aws rds create-db-instance --engine custom-oracle-ee"],
+    ]
+},
+{
+    name: "Amazon DynamoDB",
+    icon: "⚡", domain: "Database",
+    desc: "Base de datos NoSQL clave-valor y documentos, totalmente gestionada y serverless. Preguntas sobre RCU/WCU, GSIs, LSIs, DynamoDB Streams, DAX y patrones de diseño son muy frecuentes en el Developer Associate.",
+    tools: [
+        ["Tablas", "Colección de items con clave de partición (PK) y opcional clave de ordenación (SK)", "Sesiones de usuario, catálogos, carritos de compra, IoT, metadatos", "aws dynamodb create-table"],
+        ["RCU / WCU (Capacity Units)", "Unidades de capacidad: lectura (RCU: 4 KB/seg) y escritura (WCU: 1 KB/seg). Modo on-demand o provisioned", "Dimensionar y pagar por rendimiento predecible (provisioned) o impredecible (on-demand)", "aws dynamodb update-table --billing-mode"],
+        ["GSI (Global Secondary Index)", "Índice con PK y SK diferentes a la tabla base; se crea/elimina dinámicamente", "Consultar por atributos alternativos; ej: buscar usuario por email además de ID", "aws dynamodb update-table --global-secondary-index-updates"],
+        ["LSI (Local Secondary Index)", "Índice con la misma PK pero diferente SK que la tabla; debe crearse al crear la tabla", "Consultas alternativas dentro de la misma partición; consistencia fuerte", "aws dynamodb create-table --local-secondary-indexes"],
+        ["DynamoDB Streams", "Registro ordenado de cambios (insert/update/delete) en la tabla; 24h retención", "Trigger Lambda para procesar cambios, replicar a Elasticsearch", "aws dynamodb update-table --stream-specification"],
+        ["DAX (DynamoDB Accelerator)", "Caché en memoria compatible con API DynamoDB; latencia de microsegundos", "Reducir latencia de lectura a microsegundos para apps de alto rendimiento", "aws dax create-cluster"],
+        ["Global Tables", "Tabla replicada automáticamente en múltiples regiones con resolución de conflictos last-writer-wins", "Aplicaciones globales con baja latencia local y DR multi-región", "aws dynamodb create-global-table"],
+        ["TTL (Time-to-Live)", "Elimina items automáticamente cuando expira su timestamp", "Datos efímeros: sesiones, cachés, logs con retención limitada", "aws dynamodb update-time-to-live"],
+        ["Point-in-Time Recovery (PITR)", "Restaura continua a cualquier punto en los últimos 35 días", "Protección contra borrados o escrituras accidentales", "aws dynamodb update-continuous-backups"],
+    ]
+},
+{
+    name: "Servicios de Integración (SQS, SNS, EventBridge, Step Functions)",
+    icon: "🔗", domain: "Integration",
+    desc: "Desacoplamiento de aplicaciones. SQS (colas), SNS (pub/sub), EventBridge (event bus), Step Functions (workflows). Aparecen en TODOS los exámenes.",
+    tools: [
+        ["SQS Standard Queue", "Cola de mensajes con throughput ilimitado; entrega al menos una vez; orden aproximado", "Desacoplar microservicios; buffer entre productor y consumidor", "aws sqs create-queue"],
+        ["SQS FIFO Queue", "Orden exacto, entrega exactamente una vez; 300 msg/s (batch), 3000 msg/s (batch + high throughput)", "Procesamiento ordenado: transacciones financieras, colas de pedidos", "aws sqs create-queue --attributes FifoQueue=true"],
+        ["SQS Dead-Letter Queue (DLQ)", "Cola donde van mensajes que no se pudieron procesar tras N reintentos", "Inspeccionar mensajes fallidos, reprocesarlos manualmente", "aws sqs create-queue + redrive policy"],
+        ["SNS Topics", "Publica mensajes a múltiples suscriptores (push): email, SMS, HTTP, Lambda, SQS", "Notificaciones, alertas CloudWatch, fan-out a múltiples colas SQS", "aws sns create-topic"],
+        ["SNS FIFO Topics", "Orden estricto + deduplicación; solo suscriptores SQS FIFO", "Notificaciones ordenadas entre sistemas que requieren secuencia exacta", "aws sns create-topic --fifo-topic"],
+        ["EventBridge (Event Bus)", "Bus de eventos serverless: eventos de servicios AWS, aplicaciones propias y partners SaaS", "Arquitecturas event-driven, reaccionar a cambios en tiempo real", "aws events put-rule"],
+        ["EventBridge Pipes", "Conecta fuentes de eventos con destinos; transformación opcional (sin código)", "Conectar directamente DynamoDB Streams → SQS con filtrado", "aws pipes create-pipe"],
+        ["Step Functions (Standard)", "Workflows de larga duración (hasta 1 año); 2000 transiciones/seg; garantiza ejecución exacta-una-vez", "Pipelines complejos, sagas, aprobaciones manuales", "aws stepfunctions create-state-machine"],
+        ["Step Functions (Express)", "Workflows de corta duración (5 min); alto throughput; al-menos-una-vez", "Procesamiento de eventos a alta escala, streaming ETL rápido", "aws stepfunctions create-state-machine --type EXPRESS"],
+        ["Amazon MQ", "Broker de mensajes gestionado para Apache ActiveMQ y RabbitMQ", "Migrar aplicaciones que ya usan ActiveMQ/RabbitMQ sin reescribir", "aws mq create-broker"],
+        ["API Gateway", "API REST y WebSocket gestionadas; throttling, caché, autorización, versionado", "Frontend de APIs serverless con Lambda; autenticación con Cognito", "aws apigateway create-rest-api"],
+        ["AppSync", "GraphQL gestionado con suscripciones en tiempo real y sincronización offline", "Apps móviles con datos offline-first, chats en tiempo real", "aws appsync create-graphql-api"],
+    ]
+},
+{
+    name: "Amazon CloudWatch & CloudTrail",
+    icon: "📊", domain: "Management",
+    desc: "Monitorización y auditoría. CloudWatch (métricas, logs, alarmas, dashboards) y CloudTrail (registro de API). Son la base de la observabilidad en AWS y preguntas seguras en SysOps.",
+    tools: [
+        ["CloudWatch Metrics", "Métricas estándar (gratis, 5 min) y detalladas (pago, 1 min). Retención 15 meses", "CPU, red, disco EBS, métricas personalizadas (PutMetricData)", "aws cloudwatch put-metric-data"],
+        ["CloudWatch Logs", "Almacén central de logs; grupos de logs, streams, retención configurable", "Centralizar logs de EC2, Lambda, CloudTrail, VPC Flow Logs", "aws logs create-log-group"],
+        ["CloudWatch Alarms", "Alerta cuando una métrica supera un umbral durante N periodos; puede disparar acciones", "Notificar por SNS, escalar ASG, detener EC2, lanzar Lambda", "aws cloudwatch put-metric-alarm"],
+        ["CloudWatch Dashboards", "Paneles personalizados con widgets de métricas, logs y texto Markdown", "Dashboard operacional de toda la aplicación en una sola vista", "aws cloudwatch put-dashboard"],
+        ["CloudWatch Synthetics", "Pruebas canary (scripts Puppeteer/Selenium) que simulan usuarios", "Monitorizar disponibilidad y latencia de endpoints críticos 24/7", "aws synthetics create-canary"],
+        ["CloudWatch Contributor Insights", "Identifica los top-N contribuyentes a una métrica (ej: quién genera más logs)", "Encontrar hosts/users que más consumen o generan errores", "aws cloudwatch put-insight-rule"],
+        ["CloudWatch Logs Insights", "Consulta logs con lenguaje SQL-like para análisis ad-hoc", "Encontrar errores específicos entre millones de líneas de log", "aws logs start-query"],
+        ["CloudWatch Anomaly Detection", "ML aplicado a métricas para detectar comportamiento anómalo automáticamente", "Alertar sobre picos inusuales sin definir umbrales fijos", "aws cloudwatch put-anomaly-detector"],
+        ["CloudTrail (Management Events)", "Registra todas las llamadas API a la cuenta (por defecto 90 días en Event History)", "Auditar quién creó/borró/modificó recursos", "aws cloudtrail create-trail"],
+        ["CloudTrail Lake", "Data lake gestionado para eventos CloudTrail; consultas SQL sobre eventos históricos", "Investigar incidentes con SQL sin configurar Athena + S3", "aws cloudtrail create-event-data-store"],
+        ["CloudTrail Insights", "Detecta automáticamente actividad anómala en patrones de API (ej: pico de escrituras)", "Identificar actividad sospechosa: escalado masivo inusual, permisos cambiados", "aws cloudtrail put-insight-selectors"],
+        ["AWS X-Ray", "Trazado distribuido de requests a través de microservicios", "Identificar cuellos de botella, mapas de servicio, latencia entre componentes", "aws xray create-group"],
+    ]
+},
+{
+    name: "Systems Manager, Config & Herramientas de Gestión",
+    icon: "⚙️", domain: "Management",
+    desc: "Gestión operativa centralizada. SSM (Session Manager, Patch Manager, Run Command, Automation, Parameter Store), AWS Config (compliance), y Trusted Advisor (recomendaciones).",
+    tools: [
+        ["SSM Session Manager", "Shell (SSH/PowerShell) seguro a instancias sin bastion host, sin puertos abiertos", "Acceso seguro a instancias privadas; auditable con CloudTrail", "aws ssm start-session --target i-xxxxx"],
+        ["SSM Run Command", "Ejecuta comandos remotamente en flotas de instancias (Linux/Windows)", "Aplicar parches, ejecutar scripts a gran escala", "aws ssm send-command"],
+        ["SSM Patch Manager", "Automatiza el parcheo de SO con baseline de parches aprobados/rechazados", "Mantener cumplimiento de parches de seguridad en todas las instancias", "aws ssm create-patch-baseline"],
+        ["SSM Automation", "Runbooks (playbooks) de remediación automatizada de incidentes comunes", "Detener instancia con CPU al 100%, reiniciar BD, tomar snapshot antes de cambio", "aws ssm start-automation-execution"],
+        ["SSM Inventory", "Recopila metadatos de instancias (SO, aplicaciones, configuraciones de red)", "Auditar qué software está instalado; detectar configuraciones no conformes", "aws ssm put-inventory"],
+        ["SSM State Manager", "Define configuraciones deseadas (desired state) y las mantiene automáticamente", "Asegurar que agentes (CloudWatch, antivirus) estén siempre corriendo", "aws ssm create-association"],
+        ["SSM Parameter Store", "Almacén jerárquico de parámetros de configuración y secretos (SecureString con KMS)", "Feature flags, endpoints de BD, claves API, configuraciones por entorno", "aws ssm put-parameter"],
+        ["AWS Config", "Inventario continuo + evaluación de compliance de recursos contra reglas", "¿Hay algún S3 bucket público? ¿EBS volúmenes sin cifrar? ¿EC2 con SG abierto a 0.0.0.0?", "aws configservice put-config-rule"],
+        ["AWS Config Rules", "Reglas de compliance gestionadas por AWS (ej: s3-bucket-public-read-prohibited) o personalizadas con Lambda", "Evaluar automáticamente si los recursos violan políticas de empresa", "aws configservice put-config-rule"],
+        ["Config Conformance Packs", "Paquete de reglas de compliance predefinidas (Operational Best Practices, CIS, PCI-DSS)", "Desplegar compliance multi-cuenta rápido con estándares de industria", "aws configservice put-conformance-pack"],
+        ["Trusted Advisor", "Inspecciona la cuenta contra 5 pilares: coste, seguridad, tolerancia a fallos, rendimiento, límites", "Identificar recursos idle, S3 públicos, MFA desactivado, backups faltantes", "aws support describe-trusted-advisor-checks"],
+        ["AWS Health Dashboard", "Vista personalizada de eventos de salud de servicios AWS que afectan a tu cuenta", "Planificar mantenimientos, reaccionar a interrupciones de servicios", "aws health describe-events"],
+        ["Resource Groups & Tag Editor", "Agrupa recursos por tags y busca recursos en todas las regiones", "Encontrar todos los recursos del proyecto X con tag Project=Alpha", "aws resource-groups create-group"],
+    ]
+},
+{
+    name: "Herramientas DevOps (Code*, CloudFormation, CDK)",
+    icon: "🚀", domain: "DevOps",
+    desc: "CI/CD, IaC y despliegues. CodeCommit/CodeBuild/CodeDeploy/CodePipeline, CloudFormation, CDK, Elastic Beanstalk. Preguntas sobre IaC, tipos de despliegue y pipelines.",
+    tools: [
+        ["CodeCommit", "Repositorio Git privado gestionado en AWS; triggers a SNS/Lambda", "Control de versiones privado integrado con CodePipeline", "aws codecommit create-repository"],
+        ["CodeBuild", "Build serverless: compila, ejecuta tests y empaqueta código", "Pipeline CI: npm build, mvn package, docker build", "aws codebuild create-project"],
+        ["CodeDeploy", "Automatiza despliegues a EC2 (in-place/blue-green), Lambda y ECS", "Blue/Green deploy a EC2, canary deploy a Lambda", "aws deploy create-deployment-group"],
+        ["CodePipeline", "Orquesta pipeline CI/CD completo: source → build → test → deploy", "Pipeline visual integrado con GitHub, CodeBuild, CodeDeploy", "aws codepipeline create-pipeline"],
+        ["CodeArtifact", "Repositorio de artefactos/paquetes (npm, PyPI, Maven, NuGet)", "Almacenar dependencias privadas sin conectarse a Internet", "aws codeartifact create-repository"],
+        ["CodeGuru Reviewer", "Revisión de código automatizada con ML; detecta bugs costosos y desviaciones de mejores prácticas", "Code review automatizado en pull requests", "aws codeguru-reviewer create-code-review"],
+        ["CloudFormation", "Infraestructura como código declarativa (YAML/JSON)", "Provisionar stacks completas de recursos de forma repetible y versionable", "aws cloudformation create-stack"],
+        ["CloudFormation Change Sets", "Previsualiza los cambios antes de aplicarlos; muestra recursos nuevos/modificados/eliminados", "Validar impacto de cambios antes de ejecutar actualización de stack", "aws cloudformation create-change-set"],
+        ["CloudFormation StackSets", "Despliega el mismo stack en múltiples cuentas y regiones simultáneamente", "Landing zone: desplegar VPC base en todas las cuentas de la organización", "aws cloudformation create-stack-set"],
+        ["CloudFormation Drift Detection", "Detecta diferencias entre la configuración real de recursos y la definida en el stack", "Identificar cambios manuales no autorizados a recursos gestionados por CFN", "aws cloudformation detect-stack-drift"],
+        ["AWS CDK", "IaC imperativa usando TypeScript, Python, Java, Go, C# (sintetiza CloudFormation)", "Infraestructura definida con código de alto nivel; loops, condiciones, abstracciones", "cdk deploy (CLI propia)"],
+        ["Elastic Beanstalk", "PaaS: sube el código (Java, .NET, Node.js, PHP, Python, Ruby, Go, Docker) y AWS gestiona el resto", "Desplegar apps web sin gestionar infraestructura manualmente", "aws elasticbeanstalk create-application"],
+        ["Amplify", "Plataforma para desarrollo full-stack serverless (frontend + backend + CI/CD)", "Desarrollar apps React/Vue/Angular con backend Cognito + AppSync + DynamoDB", "aws amplify create-app"],
+    ]
+},
+{
+    name: "Otros Servicios Clave para la Certificación",
+    icon: "📦", domain: "Other",
+    desc: "Servicios que no encajan en las familias anteriores pero aparecen en las certificaciones: ElastiCache, Redshift, Kinesis, Athena, Glue, S3 Glacier, Snow Family, Storage Gateway, etc.",
+    tools: [
+        ["ElastiCache (Redis)", "Caché en memoria Redis gestionado; soporta Multi-AZ y clustering", "Sesiones distribuidas, leaderboards, caché de BD, pub/sub", "aws elasticache create-cache-cluster --engine redis"],
+        ["ElastiCache (Memcached)", "Caché en memoria simple sin persistencia ni replicación; multi-thread", "Caché de objetos simples; escalado horizontal fácil", "aws elasticache create-cache-cluster --engine memcached"],
+        ["Redshift", "Data warehouse columnar a escala de petabytes", "BI empresarial, reporting masivo, analítica SQL sobre grandes volúmenes", "aws redshift create-cluster"],
+        ["Redshift Spectrum", "Consulta datos directamente en S3 sin cargarlos en Redshift", "Extender data warehouse a data lake en S3", "aws redshift create-external-schema"],
+        ["Kinesis Data Streams", "Ingesta de datos en tiempo real; retención 1-365 días; shards para escalar", "Streaming de logs, IoT, métricas, clickstreams", "aws kinesis create-stream"],
+        ["Kinesis Data Firehose", "Entrega datos a destinos (S3, Redshift, OpenSearch, Splunk) sin código", "Ingesta serverless de datos hacia S3/Redshift", "aws firehose create-delivery-stream"],
+        ["Kinesis Data Analytics", "Procesa y analiza datos en tiempo real con SQL, Java o Apache Flink", "Dashboards en tiempo real, alertas sobre streaming", "aws kinesisanalytics create-application"],
+        ["Athena", "Consultas SQL sobre datos en S3 (serverless); pago por TB escaneado", "Análisis ad-hoc de logs, auditoría, exploración de datos", "aws athena start-query-execution"],
+        ["Glue Data Catalog", "Catálogo de metadatos (tablas, esquemas) para datos en S3; compatible con Hive", "Descubrir y catalogar datos automáticamente para Athena/Redshift/EMR", "aws glue create-database"],
+        ["Glue ETL Jobs", "Trabajos ETL serverless con Spark/Python generados o custom", "Transformar datos crudos en S3 a formato Parquet/ORC optimizado", "aws glue create-job"],
+        ["S3 Glacier Vault Lock", "Bloqueo WORM inmutable de políticas de vault Glacier", "Cumplimiento normativo estricto (ej: SEC Rule 17a-4)", "aws glacier initiate-vault-lock"],
+        ["Storage Gateway (File / Volume / Tape)", "Appliance virtual que conecta almacenamiento on-premises con AWS", "Backup a S3, tiering a Glacier, montar NFS/SMB desde S3", "aws storagegateway activate-gateway"],
+        ["Snowcone / Snowball / Snowmobile", "Dispositivos físicos para migrar datos masivos a AWS sin usar Internet", "Migrar petabytes cuando la red es inviable (50 TB – 100 PB)", "aws snowball create-job"],
+        ["DataSync", "Sincronización online de datos (NFS, SMB, S3, EFS) entre on-premises y AWS", "Migración continua de sistemas de archivos; programable", "aws datasync create-task"],
+        ["AWS Backup", "Backup centralizado y automatizado para EC2, EBS, RDS, DynamoDB, EFS, S3", "Políticas de backup unificadas cross-service con vaults y retención", "aws backup create-backup-plan"],
+    ]
+},
+{
+    name: "Amazon S3 Glacier (Archivo Frío)",
+    icon: "🧊", domain: "Storage",
+    desc: "Sub-servicio de S3 enfocado en almacenamiento de archivo de muy bajo coste. Cada clase tiene tiempos de recuperación y costes diferentes, lo que es una pregunta recurrente.",
+    tools: [
+        ["Glacier Instant Retrieval", "Recuperación inmediata (milisegundos); precio entre Standard y Standard-IA", "Datos de archivo con acceso poco frecuente pero urgente cuando se necesita", "aws s3 cp --storage-class GLACIER_IR"],
+        ["Glacier Flexible Retrieval", "Recuperación: Expedited (1-5 min), Standard (3-5 hrs), Bulk (5-12 hrs)", "Archivos de compliance, backups que rara vez se restauran", "aws s3 cp --storage-class GLACIER"],
+        ["Glacier Deep Archive", "Recuperación: Standard (12 hrs), Bulk (48 hrs); el almacenamiento más barato", "Cumplimiento a 7-10 años, archivos que casi nunca se tocan", "aws s3 cp --storage-class DEEP_ARCHIVE"],
+        ["Vaults", "Contenedor de archives en Glacier (API original); actualmente se prefiere buckets S3 + lifecycle", "Acceso programático a archivos con modelo push/pull de jobs", "aws glacier create-vault"],
+        ["Vault Lock", "Bloqueo WORM inmutable de la política del vault; ni el admin puede cambiar", "Cumplimiento normativo: SEC 17a-4, HIPAA, FINRA", "aws glacier initiate-vault-lock"],
+    ]
+},
+];
+
+// ═══════════════════════════════════════════════════════════
+// DATA: OPERATIONS
+// ═══════════════════════════════════════════════════════════
+const operationsData = {
+    monitoring: [
+        { tag:"Métricas & Logs", title:"Amazon CloudWatch", desc:"Servicio central de monitorización que recopila métricas, logs y eventos de todos los servicios AWS.", use:"- Métricas personalizadas y estándar (CPU, latencia, errores)\n- Logs centralizados con CloudWatch Logs\n- Alarmas que disparan acciones (SNS, Auto Scaling, EC2)\n- Dashboards personalizados para visibilidad en tiempo real\n- CloudWatch Synthetics para pruebas canary\n- Anomaly Detection con ML\n- Contributor Insights: top-N habladores de métricas\n- CloudWatch Logs Insights: consultas SQL-like sobre logs" },
+        { tag:"Auditoría", title:"AWS CloudTrail", desc:"Registra todas las llamadas a la API de AWS (consola, CLI, SDKs) para auditoría, seguridad y cumplimiento.", use:"- Registro de cada acción (quién, qué, cuándo, desde dónde)\n- Integración con S3 y CloudWatch Logs\n- Trails multi-región y de organización\n- CloudTrail Lake para consultas SQL sobre eventos\n- CloudTrail Insights: detección de actividad anómala\n- Esencial para investigaciones forenses de seguridad" },
+        { tag:"Tracing", title:"AWS X-Ray", desc:"Trazado distribuido para analizar y depurar aplicaciones distribuidas.", use:"- Visualizar el recorrido de una solicitud a través de microservicios\n- Identificar cuellos de botella y errores\n- Mapa de servicio automático\n- Integración con Lambda, ECS, EC2, API Gateway" },
+        { tag:"Dashboards", title:"Amazon Managed Grafana", desc:"Servicio gestionado de Grafana para dashboards de observabilidad.", use:"- Visualización de métricas de CloudWatch, Prometheus, X-Ray\n- Dashboards unificados multi-fuente\n- Alertas basadas en reglas de Grafana\n- Integración nativa con SSO de AWS" },
+    ],
+    governance: [
+        { tag:"Compliance", title:"AWS Config", desc:"Evalúa, audita y evalúa las configuraciones de los recursos AWS de forma continua.", use:"- Inventario continuo de todos los recursos\n- Reglas de compliance (ej: 'S3 buckets no deben ser públicos')\n- Línea de tiempo de cambios de configuración\n- Integración con Systems Manager para remediación automática\n- Conformance Packs para estándares de industria (CIS, PCI-DSS)" },
+        { tag:"Multi-cuenta", title:"AWS Organizations", desc:"Gobernanza centralizada para múltiples cuentas AWS.", use:"- Unidades Organizativas (OUs) jerárquicas\n- Service Control Policies (SCPs): limitan servicios y acciones permitidos\n- Facturación consolidada\n- CloudFormation StackSets multi-cuenta\n- Delegación de administración de servicios" },
+        { tag:"Landing Zone", title:"AWS Control Tower", desc:"Orquesta un landing zone multi-cuenta con mejores prácticas predefinidas.", use:"- Account Factory para creación automatizada de cuentas\n- Guardrails preventivos (SCPs) y detectivos (Config Rules)\n- Single Sign-On integrado con IAM Identity Center\n- Dashboard central de cumplimiento" },
+        { tag:"Mejores prácticas", title:"AWS Trusted Advisor", desc:"Inspecciona el entorno AWS y hace recomendaciones según 5 pilares.", use:"- Optimización de costes (recursos idle, RI/Savings Plans)\n- Seguridad (puertos abiertos, MFA no habilitado)\n- Tolerancia a fallos (AZ balance, backups, Multi-AZ)\n- Rendimiento (EBS infra-provisionado, CloudFront)\n- Límites de servicio\n- 7 checks gratuitos, +100 con planes Business/Enterprise" },
+        { tag:"Catálogo", title:"AWS Service Catalog", desc:"Portfolios de productos aprobados para que los equipos desplieguen autónomamente.", use:"- Productos CloudFormation pre-aprobados\n- Autoservicio con límites definidos\n- Control de versiones de productos\n- Integración con IAM para permisos granulares" },
+        { tag:"Postura de seguridad", title:"AWS Security Hub", desc:"Dashboard centralizado de hallazgos de seguridad de todos los servicios AWS.", use:"- Agregación de GuardDuty, Inspector, Macie, Config, Firewall Manager\n- Puntuación de seguridad contra estándares (CIS, AWS Foundations)\n- Automatización de remediación con EventBridge\n- Vista única de postura de seguridad multi-cuenta" },
+    ],
+    automation: [
+        { tag:"Gestión Operativa", title:"AWS Systems Manager (SSM)", desc:"Hub central de operaciones de infraestructura para flotas de servidores.", use:"- Session Manager: acceso SSH/RDP sin bastion host ni puertos abiertos\n- Run Command: ejecutar comandos remotamente en flotas\n- Patch Manager: parcheo automatizado con baselines aprobadas\n- State Manager: mantener configuraciones deseadas\n- Automation: runbooks de remediación\n- Inventory: recopilar metadatos de instancias\n- Parameter Store: almacenamiento jerárquico de configuración\n- Distributor: gestionar agentes y paquetes" },
+        { tag:"Eventos", title:"Amazon EventBridge", desc:"Bus de eventos serverless que conecta aplicaciones con datos de eventos.", use:"- Eventos de servicios AWS y aplicaciones propias\n- Reglas de enrutamiento basadas en patrones de eventos\n- Integración con partners SaaS (Zendesk, Datadog, PagerDuty)\n- Archivo y replay de eventos\n- Schema Registry para descubrimiento automático\n- Pipe: conexiones directas fuente→destino con filtro y transformación" },
+        { tag:"Workflows", title:"AWS Step Functions", desc:"Orquestación visual con máquinas de estado para flujos de trabajo.", use:"- Workflows estándar (hasta 1 año) y express (hasta 5 min, alto throughput)\n- Integración nativa con 200+ servicios AWS\n- Manejo de errores con reintentos, fallbacks y catch\n- Patrones: saga, fan-out, callback, parallel, human approval" },
+        { tag:"IaC", title:"AWS CloudFormation + CDK", desc:"Infraestructura como código declarativa y/o imperativa.", use:"- Templates YAML/JSON declarativos con CloudFormation\n- CDK: abstracciones en TypeScript, Python, Java, Go, C#\n- StackSets para despliegues multi-cuenta y multi-región\n- Drift Detection para detectar cambios manuales\n- Change Sets para previsualizar impacto antes de aplicar" },
+    ],
+    network: [
+        { tag:"Red Virtual", title:"Amazon VPC", desc:"Red privada virtual donde lanzar recursos AWS con control total de red.", use:"- Subredes públicas (con IGW) y privadas (sin IGW)\n- Internet Gateway, NAT Gateway, NAT Instance\n- Security Groups (stateful, nivel instancia) y NACLs (stateless, nivel subred)\n- VPC Peering, Transit Gateway, PrivateLink\n- VPC Endpoints: Gateway (S3/DynamoDB gratis) e Interface (PrivateLink, $/hora)\n- VPN Site-to-Site y Direct Connect para conectividad híbrida\n- Flow Logs para auditoría de tráfico IP" },
+        { tag:"DNS", title:"Amazon Route 53", desc:"DNS altamente disponible, registro de dominios y health checks.", use:"- 8 políticas de enrutamiento: simple, weighted, latency, failover, geolocation, geoproximity, multi-value, IP-based\n- Health checks para failover automático\n- Resolver para DNS híbrido on-premises ⇄ AWS\n- Alias records gratis para recursos AWS (ELB, CloudFront, S3)\n- Hosted zones públicas y privadas" },
+        { tag:"CDN", title:"Amazon CloudFront", desc:"CDN global con 400+ puntos de presencia.", use:"- Baja latencia global con caché en el borde\n- Integración nativa con S3, ALB, Lambda@Edge\n- Lambda@Edge y CloudFront Functions para personalización\n- Origin Shield para reducir carga en orígenes\n- Field-Level Encryption para PII\n- OAI/OAC para acceso seguro a S3 sin bucket público\n- Protección DDoS integrada con AWS Shield" },
+        { tag:"Aceleración", title:"AWS Global Accelerator", desc:"Mejora disponibilidad y rendimiento usando la red global de AWS.", use:"- IPs anycast estáticas (2) como punto de entrada único\n- Enrutamiento inteligente por el backbone de AWS\n- Failover en <30 segundos\n- Ideal para gaming, VoIP, trading, aplicaciones globales\n- Integración con ALB, NLB, EC2, Elastic IP" },
+    ],
+    cost: [
+        { tag:"Presupuestos", title:"AWS Budgets", desc:"Define presupuestos de coste, uso, Savings Plans y Reservas.", use:"- Alertas cuando el gasto se aproxima o supera el umbral\n- Tipos: Cost, Usage, Savings Plans, Reservation\n- Acciones automáticas: detener instancias, restringir IAM\n- Informes diarios, mensuales, trimestrales" },
+        { tag:"Explorador", title:"AWS Cost Explorer", desc:"Visualiza, analiza y gestiona el gasto de AWS con tendencias y previsiones.", use:"- Gráficos de tendencias y dashboards de coste\n- Filtros por servicio, región, tag, tipo de compra\n- Previsiones basadas en ML y datos históricos\n- Recomendaciones de Savings Plans y Reserved Instances\n- Informes horarios y diarios con granularidad de recursos" },
+        { tag:"Informe detallado", title:"Cost & Usage Report (CUR)", desc:"Informe granular de costes y uso entregado diariamente en S3.", use:"- Datos por hora y por recurso individual\n- Integración con Athena, Redshift y QuickSight\n- Tags de asignación de costes para showback/chargeback\n- Base para herramientas FinOps de terceros" },
+        { tag:"Anomalías", title:"AWS Cost Anomaly Detection", desc:"Detección automática de picos anómalos en el gasto con ML.", use:"- Machine learning para identificar gastos inusuales\n- Alertas por email o SNS con causa raíz\n- Reduce sustos de factura inesperada\n- Monitorea por servicio, cuenta, región o tag" },
+        { tag:"Calculadora", title:"AWS Pricing Calculator", desc:"Herramienta web para estimar costes de arquitecturas AWS.", use:"- Estimaciones detalladas por servicio y configuración\n- Exportar a CSV/PDF para presupuestos\n- Comparar escenarios (ej: on-demand vs Reserved vs Spot)\n- Cubre todos los servicios principales\n- Acceso: aws.amazon.com/calculator" },
+    ],
+};
+
+// ═══════════════════════════════════════════════════════════
+// DATA: 80 QUESTIONS
+// ═══════════════════════════════════════════════════════════
+const questions = [
+    { q:"¿Qué servicio permite ejecutar código sin aprovisionar ni gestionar servidores?", opts:["EC2","Lambda","ECS","Lightsail"], ans:"B", domain:"Compute", exp:"AWS Lambda es un servicio Function-as-a-Service (FaaS). Ejecuta código en respuesta a eventos y escala automáticamente sin que el usuario aprovisione infraestructura." },
+    { q:"¿Cuál es la durabilidad de los datos en Amazon S3 Standard?", opts:["99.9%","99.99%","99.999999999% (11 nueves)","99.999%"], ans:"C", domain:"Storage", exp:"S3 Standard ofrece 99.999999999% de durabilidad, lo que significa una pérdida media esperada de 1 objeto cada 10 000 000 000 durante un año." },
+    { q:"¿Qué política de enrutamiento de Route 53 usarías para dirigir tráfico al endpoint con menor latencia para el usuario?", opts:["Simple routing","Weighted routing","Latency routing","Failover routing"], ans:"C", domain:"Networking", exp:"Latency routing envía las solicitudes a la región con menor latencia para el usuario final, ideal para aplicaciones globales." },
+    { q:"¿Cómo se asegura que un bucket S3 no sea accesible públicamente?", opts:["Deshabilitar el bucket","Activar Block Public Access","Usar IAM roles únicamente","Borrar la bucket policy"], ans:"B", domain:"Security", exp:"Block Public Access (configuración de bucket) impide cualquier ACL o policy que conceda acceso público, anulándolas de forma efectiva." },
+    { q:"¿Qué servicio usar para auditar quién hizo cambios en recursos AWS?", opts:["CloudWatch Logs","AWS Config","CloudTrail","GuardDuty"], ans:"C", domain:"Management", exp:"CloudTrail registra todas las llamadas API realizadas en la cuenta (quién, qué acción, cuándo, IP de origen). Es la herramienta de auditoría por excelencia." },
+    { q:"Un usuario necesita almacenar datos de sesión de forma rápida. ¿Qué servicio es más adecuado?", opts:["RDS","DynamoDB","Redshift","S3"], ans:"B", domain:"Database", exp:"DynamoDB ofrece latencias de milisegundos de un solo dígito sin administrar servidores, ideal para sesiones, carritos de compra y catálogos." },
+    { q:"¿Qué es un NAT Gateway en VPC?", opts:["Un firewall con estado","Un servicio que permite a instancias privadas salir a Internet","Un balanceador de carga","Un servidor DNS"], ans:"B", domain:"Networking", exp:"Un NAT Gateway permite que instancias en subredes privadas inicien tráfico saliente a Internet (ej: para actualizaciones) sin exponerlas a tráfico entrante." },
+    { q:"¿Qué tipo de volumen EBS ofrece el mejor rendimiento para bases de datos transaccionales?", opts:["gp3","st1","io2 Block Express","sc1"], ans:"C", domain:"Storage", exp:"io2 Block Express es el volumen SSD de más alto rendimiento, con latencia sub-milisegundo y hasta 256 000 IOPS, ideal para OLTP y bases de datos exigentes." },
+    { q:"¿Cuál es la principal ventaja de Aurora frente a RDS estándar?", opts:["Es más barato en todos los casos","Ofrece hasta 5× el rendimiento de MySQL estándar y almacenamiento auto-escalable","No necesita VPC","Soporta todos los motores de BD posibles"], ans:"B", domain:"Database", exp:"Aurora separa cómputo y almacenamiento; escala automáticamente hasta 128 TiB y ofrece hasta 5× el rendimiento de MySQL y 3× el de PostgreSQL." },
+    { q:"¿Qué servicio usar para crear automáticamente un entorno multi-cuenta gobernado en AWS?", opts:["AWS Organizations","AWS Control Tower","IAM","AWS SSO"], ans:"B", domain:"Management", exp:"Control Tower orquesta el despliegue de un Landing Zone con Account Factory, guardrails, y mejores prácticas de gobernanza multi-cuenta." },
+    { q:"¿Qué API usa DynamoDB internamente en lecturas eventualmente consistentes?", opts:["Read-after-write consistency","Strongly consistent reads","Eventually consistent reads (por defecto)","ACID transactions"], ans:"C", domain:"Database", exp:"Por defecto, DynamoDB usa lecturas eventualmente consistentes, que son la mitad de baratas que las strongly consistent y consistentes en ~1 segundo." },
+    { q:"¿Cuál es la diferencia entre Security Groups y Network ACLs?", opts:["Son lo mismo","SG son stateful y operan a nivel de instancia; NACL son stateless y operan a nivel de subred","SG son stateless; NACL son stateful","Ambos operan a nivel de VPC"], ans:"B", domain:"Networking", exp:"Los Security Groups son stateful (permiten tráfico de retorno automáticamente) y se aplican a ENIs. Las NACL son stateless y se aplican a nivel de subred, con reglas ordenadas de allow/deny." },
+    { q:"¿Qué servicio se utiliza para proteger aplicaciones web de exploits comunes como SQL injection?", opts:["AWS Shield","AWS WAF","GuardDuty","Inspector"], ans:"B", domain:"Security", exp:"AWS WAF es un firewall de aplicaciones web que bloquea patrones como SQL injection, XSS, y permite rate limiting y reglas personalizadas." },
+    { q:"¿Cuál es el propósito de AWS Systems Manager Parameter Store?", opts:["Almacenar archivos estáticos","Gestionar parámetros de configuración y secretos jerárquicamente","Ejecutar consultas SQL","Enviar notificaciones push"], ans:"B", domain:"Management", exp:"Parameter Store almacena cadenas de configuración (incluyendo secretos con cifrado KMS) en una jerarquía de rutas. Es gratuito para parámetros estándar." },
+    { q:"¿Qué estrategia de despliegue de CodeDeploy minimiza el riesgo desplegando a un pequeño porcentaje antes que al resto?", opts:["All-at-once","Rolling","Blue/Green","Canary"], ans:"D", domain:"DevOps", exp:"Canary deployment despliega la nueva versión a un pequeño porcentaje de usuarios primero, valida, y luego extiende al resto progresivamente." },
+    { q:"Un usuario quiere reducir costes de EC2 para una carga de trabajo predecible 24×7. ¿Qué opción de compra es mejor?", opts:["On-Demand","Spot Instances","Reserved Instances (1 año)","Dedicated Hosts"], ans:"C", domain:"Cost", exp:"Reserved Instances ofrecen hasta 72% de descuento a cambio de un compromiso de 1 o 3 años, ideal para cargas estables y predecibles." },
+    { q:"¿Cómo permite CloudFormation actualizar una pila de forma segura?", opts:["Drift Detection","Change Sets","StackSets","Nested Stacks"], ans:"B", domain:"DevOps", exp:"Change Sets muestran una previsualización de los cambios que se aplicarán a la pila antes de ejecutarlos, permitiendo validar el impacto." },
+    { q:"¿Qué Amazon S3 storage class es más adecuada para datos accedidos con poca frecuencia pero que necesitan acceso inmediato cuando se requieren?", opts:["S3 Standard","S3 Glacier Flexible Retrieval","S3 One Zone-IA","S3 Standard-IA"], ans:"D", domain:"Storage", exp:"S3 Standard-IA tiene menor coste de almacenamiento que Standard, con un pequeño coste de recuperación, para datos accedidos con poca frecuencia pero disponibles de inmediato." },
+    { q:"¿Qué servicio permite conectar tu datacenter on-premises a AWS mediante una conexión de fibra dedicada?", opts:["Site-to-Site VPN","Direct Connect","VPC Peering","Transit Gateway"], ans:"B", domain:"Networking", exp:"Direct Connect establece una conexión de red privada dedicada entre el datacenter y AWS sin pasar por Internet, ofreciendo ancho de banda consistente." },
+    { q:"¿Qué servicio se utiliza para el procesamiento de streaming de datos en tiempo real?", opts:["SQS","SNS","Kinesis","EventBridge"], ans:"C", domain:"Analytics", exp:"Amazon Kinesis (Data Streams, Firehose, Analytics) ingiere, procesa y entrega datos en tiempo real para casos como IoT, logs y métricas." },
+    { q:"¿Qué política IAM se debe usar para que un usuario pueda acceder a un bucket S3 específico?", opts:["Solo una IAM policy","Solo una bucket policy","Una IAM policy, una bucket policy, o ambas","Solo un ACL"], ans:"C", domain:"Security", exp:"El acceso a S3 se puede controlar mediante IAM policies (asociadas al principal), bucket policies (asociadas al recurso), o ambas. Se concede si al menos una lo permite y ninguna lo deniega." },
+    { q:"¿Cómo escala AWS Lambda?", opts:["Manual con Auto Scaling Groups","Una instancia por solicitud","Automáticamente creando nuevos entornos de ejecución concurrentes","No escala, hay que configurar réplicas"], ans:"C", domain:"Serverless", exp:"Lambda crea automáticamente nuevos entornos de ejecución para cada invocación concurrente, hasta el límite de concurrencia de la cuenta (1000 por defecto, ampliable)." },
+    { q:"¿Qué servicio permite almacenar y gestionar claves de cifrado utilizadas por otros servicios de AWS?", opts:["Secrets Manager","KMS (Key Management Service)","CloudHSM","IAM"], ans:"B", domain:"Security", exp:"AWS KMS crea, gestiona y controla claves de cifrado (CMKs). Integra con S3, EBS, RDS, Secrets Manager y muchos otros servicios gratuitamente (AWS-managed CMK)." },
+    { q:"¿Cuál es el propósito principal de AWS CloudFront?", opts:["Proteger contra DDoS","Almacenar copias de seguridad","Entregar contenido con baja latencia usando una red CDN global","Gestionar DNS"], ans:"C", domain:"Networking", exp:"CloudFront es la CDN de AWS con más de 400 ubicaciones de borde que almacenan en caché contenido estático y dinámico cerca de los usuarios finales." },
+    { q:"¿Qué es un VPC Endpoint?", opts:["Una VPN a otra VPC","Un punto de acceso privado a servicios AWS sin pasar por Internet","El límite de una VPC","Un NAT Gateway"], ans:"B", domain:"Networking", exp:"Los VPC Endpoints (Gateway y Interface) permiten conectar recursos dentro de una VPC a servicios AWS como S3 o DynamoDB usando la red interna de AWS, sin salir a Internet." },
+    { q:"¿Qué servicio usarías para migrar una base de datos Oracle on-premises a Aurora PostgreSQL en AWS?", opts:["DataSync","SMS (Server Migration Service)","DMS (Database Migration Service)","Storage Gateway"], ans:"C", domain:"Migration", exp:"AWS DMS permite migraciones heterogéneas (ej: Oracle → PostgreSQL/Aurora) con mínima interrupción. AWS SCT (Schema Conversion Tool) convierte el esquema." },
+    { q:"¿Qué herramienta proporciona análisis de vulnerabilidades automatizado de instancias EC2?", opts:["GuardDuty","AWS Inspector","Shield","Macie"], ans:"B", domain:"Security", exp:"Amazon Inspector evalúa automáticamente las instancias EC2 en busca de vulnerabilidades de red y SO, generando informes de hallazgos priorizados por severidad." },
+    { q:"¿Qué servicio de integración desacopla componentes de aplicaciones mediante colas de mensajes?", opts:["SNS","SQS","Step Functions","Amazon MQ"], ans:"B", domain:"Integration", exp:"SQS (Simple Queue Service) es una cola de mensajes que permite desacoplar productores y consumidores de forma asíncrona, con colas Standard y FIFO." },
+    { q:"¿Cómo se implementa la alta disponibilidad en RDS?", opts:["Con Read Replicas","Con Multi-AZ deployment","Con ElastiCache","Con S3"], ans:"B", domain:"Database", exp:"Multi-AZ replica los datos sincrónicamente a una instancia standby en otra zona de disponibilidad. En caso de fallo, RDS conmuta automáticamente al standby." },
+    { q:"¿Qué es AWS Organizations?", opts:["Una herramienta de monitorización","Un servicio para gestionar múltiples cuentas AWS de forma centralizada","Un tipo de base de datos","Un marketplace de software"], ans:"B", domain:"Management", exp:"Organizations permite agrupar cuentas en OUs, aplicar SCPs (Service Control Policies) y consolidar la facturación." },
+    { q:"¿Qué ventaja tiene S3 Transfer Acceleration?", opts:["Comprime los archivos antes de subirlos","Acelera las transferencias usando los puntos de borde de CloudFront","Permite transferencias entre regiones","Es gratuito"], ans:"B", domain:"Storage", exp:"Transfer Acceleration enruta los datos por las ubicaciones de borde de CloudFront más cercanas al usuario, reduciendo la latencia en subidas a S3." },
+    { q:"¿Qué es el Well-Architected Framework de AWS?", opts:["Un servicio de pago","Un conjunto de mejores prácticas en 6 pilares para diseñar sistemas en la nube","Una metodología de despliegue","Un framework de machine learning"], ans:"B", domain:"Architecture", exp:"Los 6 pilares son: Excelencia Operacional, Seguridad, Fiabilidad, Eficiencia de Rendimiento, Optimización de Costes y Sostenibilidad." },
+    { q:"¿Qué tipo de balanceador (ELB) es adecuado para tráfico HTTP/HTTPS con enrutamiento basado en URL?", opts:["Classic Load Balancer","Network Load Balancer","Application Load Balancer (ALB)","Gateway Load Balancer"], ans:"C", domain:"Compute", exp:"El ALB opera en capa 7 (HTTP/HTTPS) y permite enrutamiento basado en host, path, headers y query strings, ideal para microservicios." },
+    { q:"¿Qué servicio automatiza la respuesta a incidentes de seguridad en AWS?", opts:["GuardDuty","Security Hub","AWS Config","CloudTrail"], ans:"B", domain:"Security", exp:"Security Hub agrega hallazgos de GuardDuty, Inspector, Macie, Firewall Manager y los centraliza. Con EventBridge, puede automatizar respuestas." },
+    { q:"¿Cómo se implementa la consistencia fuerte en DynamoDB?", opts:["Es el comportamiento por defecto","Usando TransactWriteItems","Pasando ConsistentRead=true en la consulta","Usando Global Tables"], ans:"C", domain:"Database", exp:"DynamoDB ofrece lecturas strongly consistent (con ConsistentRead=true) que devuelven la versión más reciente de los datos, a un coste de 1 RCU por 4 KB." },
+    { q:"¿Cuál es el límite de timeout de una función AWS Lambda?", opts:["5 minutos","15 minutos","1 hora","30 segundos"], ans:"B", domain:"Serverless", exp:"El timeout máximo de Lambda es 15 minutos (900 segundos). Para procesos más largos, usar Step Functions o patrones de procesamiento asíncrono." },
+    { q:"¿Qué servicio AWS ofrece un servicio de nombres de dominio (DNS)?", opts:["CloudFront","ELB","Route 53","Direct Connect"], ans:"C", domain:"Networking", exp:"Route 53 es el servicio DNS de AWS. El nombre viene del puerto DNS (53). Soporta registro de dominios, health checks y múltiples políticas de enrutamiento." },
+    { q:"¿Cuál es la diferencia entre SNS y SQS?", opts:["No hay diferencia","SNS es push (publica a suscriptores), SQS es pull (los consumidores sondean la cola)","SNS almacena mensajes; SQS no","SQS es solo para email"], ans:"B", domain:"Integration", exp:"SNS es un servicio pub/sub que envía notificaciones a múltiples suscriptores (push). SQS es una cola donde los consumidores recuperan mensajes (pull)." },
+    { q:"¿Qué significa 'infraestructura como código' (IaC)?", opts:["Programar en C++ para infraestructura","Definir infraestructura mediante archivos de configuración versionables","Usar solo servicios serverless","Escribir scripts en bash"], ans:"B", domain:"DevOps", exp:"IaC permite definir, versionar y desplegar infraestructura usando templates declarativos (CloudFormation, CDK, Terraform) en lugar de configurar manualmente." },
+    { q:"¿Qué AWS service permite ejecutar consultas SQL directamente sobre archivos en S3 sin cargar datos en una base de datos?", opts:["Redshift Spectrum","Athena","EMR","RDS"], ans:"B", domain:"Analytics", exp:"Athena ejecuta consultas SQL ANSI sobre datos almacenados en S3 usando Presto/Trino. No requiere infraestructura; pagas por TB escaneado." },
+    { q:"¿Qué es AWS Backup?", opts:["Subir archivos manualmente a S3","Un servicio centralizado para gestionar backups de varios servicios AWS","Una herramienta de línea de comandos","Un tipo de instancia EC2"], ans:"B", domain:"Management", exp:"AWS Backup centraliza y automatiza la protección de datos de servicios como EC2, EBS, RDS, DynamoDB, EFS y S3, con políticas de retención y cross-region." },
+    { q:"¿Cómo se cifran los volúmenes EBS en reposo?", opts:["No se pueden cifrar","Usando KMS para generar y gestionar las claves de cifrado","Con SSL/TLS","Con compresión"], ans:"B", domain:"Security", exp:"EBS se integra con KMS para cifrar volúmenes y snapshots con claves gestionadas por AWS o por el cliente (CMK). El cifrado es transparente para la instancia EC2." },
+    { q:"¿Qué es AWS Elastic Beanstalk?", opts:["Un servicio IaaS","Un servicio PaaS para desplegar aplicaciones web sin gestionar la infraestructura subyacente","Una base de datos NoSQL","Una CDN"], ans:"B", domain:"DevOps", exp:"Elastic Beanstalk aprovisiona automáticamente la infraestructura necesaria (EC2, ELB, Auto Scaling, RDS), mientras el desarrollador solo sube el código." },
+    { q:"¿Cuál es el propósito de CloudFormation StackSets?", opts:["Crear una sola pila","Desplegar la misma pila de CloudFormation en múltiples cuentas y regiones","Reemplazar IAM","Monitorizar logs"], ans:"B", domain:"DevOps", exp:"StackSets permite desplegar templates de CloudFormation de forma consistente a través de múltiples cuentas AWS y regiones simultáneamente." },
+    { q:"¿Qué servicio analiza automáticamente los datos en S3 para descubrir información confidencial (PII)?", opts:["GuardDuty","Macie","Inspector","WAF"], ans:"B", domain:"Security", exp:"Amazon Macie usa machine learning para detectar, clasificar y proteger automáticamente datos confidenciales como PII en buckets S3." },
+    { q:"¿Qué diferencia hay entre Spot Instances y On-Demand Instances?", opts:["Spot son más caras","Spot pueden ser terminadas por AWS con 2 minutos de aviso; ofrecen hasta 90% de descuento","Spot son dedicadas","No hay diferencia"], ans:"B", domain:"Cost", exp:"Las Spot Instances usan capacidad EC2 sobrante con descuentos de hasta 90%, pero AWS puede reclamarlas con un aviso de 2 minutos." },
+    { q:"¿Qué es AWS Global Accelerator?", opts:["Una VPN global","Un servicio que dirige tráfico por la red global de AWS para mejorar rendimiento y failover","Un acelerador de GPU","Un tipo de instancia EC2"], ans:"B", domain:"Networking", exp:"Global Accelerator proporciona IPs anycast estáticas que sirven como punto de entrada único. Enruta el tráfico por el backbone de AWS." },
+    { q:"¿Qué es un Security Group en AWS?", opts:["Un grupo de usuarios IAM","Un firewall virtual stateful a nivel de instancia","Un sistema de detección de intrusos","Un servicio de antivirus"], ans:"B", domain:"Security", exp:"Los Security Groups actúan como firewall virtual stateful para instancias EC2: controlan tráfico entrante y saliente mediante reglas de allow (no soportan deny)." },
+    { q:"¿Qué servicio permite crear pipelines de CI/CD en AWS?", opts:["CodeCommit","CodePipeline","CodeGuru","EC2"], ans:"B", domain:"DevOps", exp:"CodePipeline orquesta las fases de CI/CD (source, build, test, deploy) integrando con CodeCommit, CodeBuild, CodeDeploy y herramientas de terceros." },
+    { q:"¿Cuál es la máxima capacidad de almacenamiento de un solo volumen de EBS (gp3, io2, st1, sc1)?", opts:["1 TiB","16 TiB","64 TiB","128 TiB"], ans:"B", domain:"Storage", exp:"Los volúmenes EBS estándar tienen un tamaño máximo de 16 TiB, con rendimiento base de 3000 IOPS y 125 MB/s para gp3." },
+    { q:"¿Para qué sirve un Placement Group de tipo Cluster?", opts:["Distribuir instancias en hardware separado para tolerancia a fallos","Agrupar instancias en el mismo rack para mínima latencia de red","Particionar instancias en grupos lógicos","Balanceo de carga automático"], ans:"B", domain:"Compute", exp:"Los Cluster Placement Groups agrupan instancias en la misma zona de disponibilidad y proximidad física, logrando latencia de red de un solo dígito de milisegundo para HPC." },
+    { q:"¿Cuál es una ventaja de usar S3 Intelligent-Tiering?", opts:["Es la clase más barata de todas","Mueve objetos automáticamente entre tier de acceso frecuente e infrecuente sin coste de recuperación adicional","Garantiza 100% de disponibilidad en una sola AZ","Solo funciona con objetos mayores a 1 GB"], ans:"B", domain:"Storage", exp:"S3 Intelligent-Tiering monitoriza patrones de acceso y mueve objetos automáticamente entre Frequent Access e Infrequent Access sin coste de transferencia ni recuperación." },
+    { q:"¿Qué comando CloudFormation usarías para ver qué cambios se aplicarían antes de actualizar un stack?", opts:["aws cloudformation update-stack","aws cloudformation create-change-set","aws cloudformation detect-stack-drift","aws cloudformation validate-template"], ans:"B", domain:"DevOps", exp:"Create-change-set genera un resumen de recursos que serán añadidos, modificados o eliminados antes de aplicar el cambio, permitiendo revisión previa." },
+    { q:"¿Cómo se puede acceder a instancias EC2 privadas sin bastion host y sin abrir puertos SSH?", opts:["Con un NAT Gateway","Con SSM Session Manager","Con VPC Peering","Con Direct Connect"], ans:"B", domain:"Management", exp:"SSM Session Manager proporciona una shell segura basada en navegador o CLI a instancias EC2 sin necesidad de abrir puertos, bastion hosts o SSH keys." },
+    { q:"¿Qué es AWS Lambda Provisioned Concurrency?", opts:["Límite máximo de ejecuciones simultáneas","Entornos de ejecución pre-inicializados para evitar cold starts","Conexión entre Lambda y DynamoDB","Script de inicialización de la función"], ans:"B", domain:"Serverless", exp:"Provisioned Concurrency mantiene un número fijo de ejecuciones pre-calentadas, eliminando la latencia de cold start en aplicaciones sensibles." },
+    { q:"¿Cuál de estos NO es un pilar del AWS Well-Architected Framework?", opts:["Excelencia Operacional","Agilidad Empresarial","Seguridad","Eficiencia de Rendimiento"], ans:"B", domain:"Architecture", exp:"Los 6 pilares del Well-Architected Framework son: Excelencia Operacional, Seguridad, Fiabilidad, Eficiencia de Rendimiento, Optimización de Costes y Sostenibilidad." },
+    { q:"Si necesitas una base de datos con modelo clave-valor que ofrezca latencias de microsegundos para lecturas, ¿qué usarías además de DynamoDB?", opts:["RDS Read Replica","ElastiCache Redis","DAX (DynamoDB Accelerator)","S3 con CloudFront"], ans:"C", domain:"Database", exp:"DAX es una caché en memoria totalmente gestionada y compatible con la API de DynamoDB, ofreciendo latencia de lectura de microsegundos sin cambiar el código." },
+    { q:"¿Qué política de Route 53 usarías para implementar un despliegue canary donde el 10% del tráfico va a la nueva versión?", opts:["Latency routing","Failover routing","Weighted routing","Geolocation routing"], ans:"C", domain:"Networking", exp:"Weighted routing permite asignar pesos (ej: 90/10) para distribuir tráfico entre múltiples endpoints, perfecto para despliegues canary o blue/green." },
+    { q:"¿Qué servicio permite a las aplicaciones on-premises asumir roles IAM mediante certificados X.509 sin usar access keys de larga duración?", opts:["IAM Identity Center","STS","IAM Roles Anywhere","Cognito"], ans:"C", domain:"Security", exp:"IAM Roles Anywhere extiende la confianza de IAM a workloads fuera de AWS usando certificados X.509 emitidos por una CA registrada, eliminando access keys de larga duración." },
+    { q:"¿Qué afirmación es CORRECTA sobre los SQS FIFO queues?", opts:["Tienen throughput ilimitado","Garantizan orden exacto y entrega exactamente una vez","Se pueden suscribir a SNS Standard","No soportan batch processing"], ans:"B", domain:"Integration", exp:"Las colas SQS FIFO garantizan orden exacto (first-in-first-out) y procesamiento exactamente una vez (sin duplicados), con límite de 300 msg/s (estándar) o 3000 msg/s (high throughput + batch)." },
+    { q:"¿Qué herramienta de análisis de seguridad de EC2 escanea automáticamente el SO y el tráfico de red en busca de vulnerabilidades?", opts:["GuardDuty","AWS Inspector","Security Hub","AWS Config"], ans:"B", domain:"Security", exp:"Amazon Inspector realiza escaneos automatizados de vulnerabilidades del SO y de la red en instancias EC2, generando un informe de hallazgos con severidad." },
+    { q:"¿Cuál de los siguientes es un beneficio de los VPC Endpoints de tipo Gateway?", opts:["Soportan todos los servicios AWS","Son de pago por hora más transferencia","Son gratuitos (sin coste adicional) y permiten acceso privado a S3/DynamoDB","Requieren un NAT Gateway asociado"], ans:"C", domain:"Networking", exp:"Los Gateway Endpoints (S3 y DynamoDB) no tienen coste adicional. Solo requieren añadir una ruta en la route table de la subred." },
+    { q:"En DynamoDB, ¿cuál es la diferencia entre un GSI y un LSI?", opts:["GSI tiene consistencia fuerte; LSI no","GSI puede crearse después de la tabla con PK/SK distintas; LSI solo al crear la tabla con misma PK","LSI puede crearse en cualquier momento; GSI no","No hay diferencia significativa"], ans:"B", domain:"Database", exp:"Un GSI puede tener PK y SK diferentes y crearse/eliminarse en cualquier momento. Un LSI comparte la misma PK que la tabla y solo puede definirse al crear la tabla." },
+    { q:"¿Qué opción de compra de EC2 es más adecuada para un batch job que procesa datos no urgentes y tolera interrupciones?", opts:["On-Demand","Reserved Instances","Spot Instances","Dedicated Hosts"], ans:"C", domain:"Compute", exp:"Spot Instances ofrecen hasta 90% de descuento sobre On-Demand y son ideales para cargas tolerantes a fallos como procesamiento batch, CI/CD y renderizado." },
+    { q:"¿Qué tipo de volumen EBS es más adecuado para un data warehouse con streaming de datos secuencial?", opts:["gp3","io2","st1 (Throughput Optimized HDD)","io2 Block Express"], ans:"C", domain:"Storage", exp:"st1 es Throughput Optimized HDD, diseñado para cargas de trabajo con grandes accesos secuenciales como data warehousing y procesamiento de logs, a bajo coste." },
+    { q:"¿Cuál es la característica clave de Aurora Serverless v2?", opts:["Solo funciona en una AZ","Escala automáticamente ACUs (Aurora Capacity Units) según demanda, incluso a cero en v1","Sustituye a DynamoDB","No soporta MySQL"], ans:"B", domain:"Database", exp:"Aurora Serverless v2 escala la capacidad automáticamente de forma continua según la carga de trabajo, en fracciones de ACU, ideal para cargas intermitentes o con picos impredecibles." },
+    { q:"¿Qué servicio almacena artefactos de software para Node.js, Python, Maven y NuGet de forma segura dentro de AWS?", opts:["CodeCommit","CodeArtifact","ECR","S3"], ans:"B", domain:"DevOps", exp:"AWS CodeArtifact es un repositorio de artefactos que permite almacenar, publicar y compartir paquetes de software (npm, PyPI, Maven, NuGet) dentro de AWS." },
+    { q:"¿Cuál es el propósito de Amazon EMR?", opts:["Base de datos relacional serverless","Plataforma de big data para procesamiento con Hadoop, Spark, HBase, Presto","Servicio de streaming en tiempo real","Balanceador de carga de aplicaciones"], ans:"B", domain:"Analytics", exp:"Amazon EMR (Elastic MapReduce) es una plataforma de big data que ejecuta frameworks como Apache Spark, Hadoop, HBase y Presto a escala." },
+    { q:"¿Qué hace exactamente CloudFront Origin Access Control (OAC)?", opts:["Acelera el acceso al origen","Restringe el acceso al bucket S3 para que solo CloudFront pueda leerlo (sin hacer público el bucket)","Encripta el tráfico entre CloudFront y el usuario final","Balancea la carga entre múltiples orígenes"], ans:"B", domain:"Networking", exp:"OAC (sucesor de OAI) asegura que los usuarios solo puedan acceder al contenido de S3 a través de CloudFront, manteniendo el bucket totalmente privado." },
+    { q:"Para una aplicación serverless con picos de tráfico impredecibles, ¿qué modo de facturación de DynamoDB es más adecuado?", opts:["Provisioned con Auto Scaling","On-Demand","Reserved Capacity","Solo RCU provisioned, WCU on-demand"], ans:"B", domain:"Database", exp:"El modo On-Demand paga por RCU/WCU consumidos sin planificar capacidad, ideal para cargas impredecibles o desconocidas. El modo Provisioned es mejor cuando el patrón es predecible." },
+    { q:"¿A qué capa OSI opera un Network Load Balancer (NLB)?", opts:["Capa 7 (Aplicación)","Capa 4 (Transporte)","Capa 3 (Red)","Capa 2 (Enlace)"], ans:"B", domain:"Compute", exp:"El NLB opera en capa 4 (TCP/UDP/TLS) ofreciendo ultra-baja latencia, millones de RPS, e IPs estáticas, a diferencia del ALB que opera en capa 7 (HTTP/HTTPS)." },
+    { q:"¿Qué beneficio aporta AWS CloudFormation Drift Detection?", opts:["Acelera la creación de stacks","Detecta cambios manuales en recursos que se desvían de la configuración del stack","Migra stacks entre regiones automáticamente","Genera estimaciones de coste"], ans:"B", domain:"DevOps", exp:"Drift Detection compara la configuración real de cada recurso contra la esperada por CloudFormation, identificando cambios manuales no autorizados." },
+    { q:"¿Cómo se llama el agente que SSM necesita para gestionar instancias EC2?", opts:["CloudWatch Agent","SSM Agent","Kinesis Agent","Inspector Agent"], ans:"B", domain:"Management", exp:"El SSM Agent está instalado por defecto en las AMIs de Amazon Linux y Windows, y permite que Systems Manager interactúe con las instancias." },
+    { q:"En IAM, ¿qué son las Permission Boundaries?", opts:["Políticas que conceden permisos adicionales","Límite máximo de permisos que un rol/usuario puede tener, aunque tenga más políticas asignadas","Reglas de firewall para IAM","Método para compartir roles entre cuentas"], ans:"B", domain:"Security", exp:"Una Permission Boundary define el conjunto máximo de permisos efectivos. Incluso si un admin asigna políticas más amplias, el boundary las limita." },
+    { q:"¿Qué servicio usarías para consultar logs de aplicación con un lenguaje similar a SQL sin necesidad de indexar?", opts:["Athena","CloudWatch Logs Insights","Redshift Spectrum","EMR"], ans:"B", domain:"Management", exp:"CloudWatch Logs Insights permite consultar logs en tiempo real con un lenguaje de consulta propio (fields, filter, stats, sort, limit) sin necesidad de ETL ni indexación previa." },
+    { q:"¿Cuál es el límite de mensajes en una cola SQS FIFO con high throughput habilitado y batch processing?", opts:["300 msg/s","3000 msg/s","Ilimitado","1000 msg/s"], ans:"B", domain:"Integration", exp:"Con high throughput habilitado y usando batch (10 mensajes por request), una cola SQS FIFO alcanza hasta 3000 msg/s. Sin high throughput, el límite es 300 msg/s." },
+    { q:"¿Qué S3 Storage Class NO cobra por recuperación de datos?", opts:["Glacier Flexible Retrieval","Standard-IA","Intelligent-Tiering","Glacier Deep Archive"], ans:"C", domain:"Storage", exp:"S3 Intelligent-Tiering no cobra por mover objetos entre tiers ni por recuperarlos, cobrando solo una pequeña tarifa de monitorización por objeto." },
+    { q:"¿Cuál es la función de AWS CloudFormation Drift Detection?", opts:["Prevenir cambios manuales en recursos","Detectar diferencias entre la configuración real de recursos y la definida en el stack","Migrar stacks entre regiones","Revertir automáticamente cambios manuales"], ans:"B", domain:"DevOps", exp:"Drift Detection compara el estado real de cada recurso gestionado por CloudFormation contra la plantilla del stack, identificando cualquier modificación manual no autorizada." },
+    { q:"¿Qué tipo de balanceador de carga se recomienda para aplicaciones que requieren dirección IP estática como punto de entrada?", opts:["Application Load Balancer","Classic Load Balancer","Network Load Balancer","Gateway Load Balancer"], ans:"C", domain:"Compute", exp:"El NLB proporciona una o varias IPs estáticas por AZ y puede asignar Elastic IPs. Opera en capa 4 con latencia ultra-baja, ideal cuando se necesita una IP fija para whitelisting." },
+    { q:"¿Para qué se usa Amazon EventBridge Pipes?", opts:["Para crear reglas de enrutamiento de eventos","Para conectar directamente una fuente de eventos con un destino aplicando filtrado y transformación sin código glue","Para almacenar eventos históricos","Para cifrar eventos en tránsito"], ans:"B", domain:"Integration", exp:"EventBridge Pipes simplifica las integraciones punto a punto entre fuentes (DynamoDB Streams, SQS, Kinesis) y destinos (Lambda, Step Functions, SQS, etc.), con filtrado y transformación opcional sin escribir código adicional." },
+    { q:"¿Cuál es una característica de los Security Groups que los diferencia de las NACLs?", opts:["Soportan reglas de deny","Son stateless","Son stateful: permiten automáticamente el tráfico de retorno","Se aplican a nivel de subred"], ans:"C", domain:"Networking", exp:"Los Security Groups son stateful, lo que significa que si permites tráfico entrante en un puerto, el tráfico de respuesta saliente se permite automáticamente sin necesidad de una regla explícita. Las NACLs son stateless." },
+];
+
+// ═══════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+// -- Populate family filter dropdown
+const familyNames = serviceFamilies.map(f => f.name);
+const familyFilter = document.getElementById('familyFilter');
+familyNames.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    familyFilter.appendChild(opt);
+});
+
+// -- Build service families
+function renderFamilies(filter = "", familyFilterVal = "") {
+    const container = document.getElementById('familiesContainer');
+    const fLower = filter.toLowerCase();
+    let html = '';
+
+    serviceFamilies.forEach((family, idx) => {
+        // Skip if family filter active and doesn't match
+        if (familyFilterVal && family.name !== familyFilterVal) return;
+
+        let filteredTools = family.tools;
+        if (fLower) {
+            filteredTools = family.tools.filter(t =>
+                t[0].toLowerCase().includes(fLower) ||
+                t[1].toLowerCase().includes(fLower) ||
+                t[2].toLowerCase().includes(fLower) ||
+                t[3].toLowerCase().includes(fLower)
+            );
+        }
+
+        // Skip family if all tools filtered out
+        if (fLower && filteredTools.length === 0 && !family.name.toLowerCase().includes(fLower)) return;
+
+        html += `<div class="service-family" id="sf-${idx}">
+            <div class="sf-header" onclick="toggleFamily('sf-${idx}')">
+                <span><span class="sf-icon">${family.icon}</span> ${family.name}</span>
+                <span class="sf-arrow">▼</span>
+            </div>
+            <div class="sf-body">
+                <p style="padding:.7rem 1rem .3rem;font-size:.88rem;color:#555;">${family.desc}</p>
+                <table>
+                    <thead><tr><th>Herramienta</th><th>Descripción</th><th>Caso de Uso</th><th>Comando / Ubicación</th></tr></thead>
+                    <tbody>
+                    ${filteredTools.map(t => `<tr>
+                        <td>${t[0]}</td>
+                        <td>${t[1]}</td>
+                        <td>${t[2]}</td>
+                        <td><code>${t[3]}</code></td>
+                    </tr>`).join('')}
+                    </tbody>
+                </table>
+                <div class="sf-meta">${filteredTools.length} herramienta(s) · Dominio: ${family.domain}</div>
+            </div>
+        </div>`;
+    });
+
+    if (!html) {
+        html = '<p style="text-align:center;padding:3rem;color:#888;">No se encontraron herramientas con ese criterio de búsqueda.</p>';
+    }
+    container.innerHTML = html;
+}
+
+function toggleFamily(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const header = el.querySelector('.sf-header');
+    const body = el.querySelector('.sf-body');
+    const isOpen = body.classList.contains('open');
+    if (isOpen) {
+        body.classList.remove('open');
+        header.classList.remove('open');
+    } else {
+        body.classList.add('open');
+        header.classList.add('open');
+    }
+}
+
+function expandAllFamilies() {
+    document.querySelectorAll('.sf-body').forEach(b => b.classList.add('open'));
+    document.querySelectorAll('.sf-header').forEach(h => h.classList.add('open'));
+}
+function collapseAllFamilies() {
+    document.querySelectorAll('.sf-body').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.sf-header').forEach(h => h.classList.remove('open'));
+}
+
+// -- Render operations
+function renderOperations() {
+    for (const [key, items] of Object.entries(operationsData)) {
+        const container = document.getElementById(key + 'Cards');
+        if (!container) continue;
+        container.innerHTML = items.map(item => `
+            <div class="card">
+                <span class="tag">${item.tag}</span>
+                <h4>${item.title}</h4>
+                <p>${item.desc}</p>
+                <ul>${item.use.split('\n').filter(l => l.trim()).map(l => `<li>${l.replace(/^- /,'')}</li>`).join('')}</ul>
+            </div>
+        `).join('');
+    }
+}
+
+// -- Render questions
+function renderQuestions(filter = "", domain = "") {
+    let filtered = questions;
+    if (filter) {
+        const f = filter.toLowerCase();
+        filtered = filtered.filter(q => q.q.toLowerCase().includes(f) || q.exp.toLowerCase().includes(f));
+    }
+    if (domain) {
+        filtered = filtered.filter(q => q.domain === domain);
+    }
+    const list = document.getElementById('questionsList');
+    list.innerHTML = filtered.map((q, i) => `
+        <div class="qa" data-domain="${q.domain}" id="qa-${i}">
+            <div class="q-title">${q.q}<span class="domain-tag">${q.domain}</span></div>
+            <ol class="q-options">
+                ${q.opts.map((o, oi) => `<li class="${String.fromCharCode(65+oi) === q.ans ? 'correct-option' : ''}">${o}<span class="correct-badge"> ✅</span></li>`).join('')}
+            </ol>
+            <button class="show-btn" onclick="toggleQA('qa-${i}')">Mostrar respuesta</button>
+            <div class="q-answer">
+                <strong>Respuesta correcta: ${q.ans}</strong> · <strong>Dominio: ${q.domain}</strong><br><br>${q.exp}
+            </div>
+        </div>
+    `).join('');
+    if (filtered.length === 0) {
+        list.innerHTML = '<p style="text-align:center;padding:3rem;color:#888;">No se encontraron preguntas con ese criterio.</p>';
+    }
+}
+
+function toggleQA(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const btn = el.querySelector('.show-btn');
+    const isOpen = el.classList.contains('open');
+    if (isOpen) { el.classList.remove('open'); btn.textContent = 'Mostrar respuesta'; }
+    else { el.classList.add('open'); btn.textContent = 'Ocultar respuesta'; }
+}
+
+// -- Populate domain filter for questions
+const domains = [...new Set(questions.map(q => q.domain))].sort();
+const domainFilterEl = document.getElementById('domainFilter');
+domains.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = d;
+    domainFilterEl.appendChild(opt);
+});
+
+// -- Event listeners
+document.getElementById('toolSearch').addEventListener('input', function() {
+    renderFamilies(this.value, document.getElementById('familyFilter').value);
+});
+document.getElementById('familyFilter').addEventListener('change', function() {
+    renderFamilies(document.getElementById('toolSearch').value, this.value);
+});
+document.getElementById('questionSearch').addEventListener('input', function() {
+    renderQuestions(this.value, document.getElementById('domainFilter').value);
+});
+document.getElementById('domainFilter').addEventListener('change', function() {
+    renderQuestions(document.getElementById('questionSearch').value, this.value);
+});
+function expandAllQA() {
+    document.querySelectorAll('.qa').forEach(el => { el.classList.add('open'); el.querySelector('.show-btn').textContent = 'Ocultar respuesta'; });
+}
+function collapseAllQA() {
+    document.querySelectorAll('.qa').forEach(el => { el.classList.remove('open'); el.querySelector('.show-btn').textContent = 'Mostrar respuesta'; });
+}
+
+// Back to top
+window.addEventListener('scroll', function() {
+    document.getElementById('backTop').style.display = window.scrollY > 600 ? 'block' : 'none';
+});
+
+// Nav active state
+document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', function() {
+        document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Init
+renderFamilies();
+renderOperations();
+renderQuestions();
+</script>
+</body>
+</html>
