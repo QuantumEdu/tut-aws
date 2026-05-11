@@ -81,6 +81,14 @@ section h3 { font-size: 1.2rem; color: var(--aws-blue); margin: 1.5rem 0 .6rem; 
 .qa .show-btn:hover { background: var(--aws-blue); color: white; }
 .qa .domain-tag { font-size: .75rem; background: #E8EAF0; border-radius: 10px; padding: .1rem .5rem; color: #555; margin-left: .5rem; }
 
+/* BADGES */
+.badge-core { background: #1AAB4B; color: #fff; border-radius: 3px; padding: 0 .3rem; font-size: .7rem; font-weight: 700; margin-left: .3rem; white-space: nowrap; }
+.badge-cert { background: #FFD700; color: #232F3E; border: 1px solid #E6BE00; border-radius: 3px; padding: 0 .3rem; font-size: .7rem; font-weight: 700; margin-left: .3rem; white-space: nowrap; }
+.card .card-badges { margin-bottom: .4rem; }
+.card .card-badges span { margin-right: .2rem; }
+.legend-box { background: #FFFDF0; border: 1px solid #E6D880; border-radius: var(--radius); padding: .7rem 1rem; margin-bottom: 1rem; font-size: .85rem; display: flex; gap: 1.2rem; flex-wrap: wrap; align-items: center; }
+.legend-box strong { white-space: nowrap; }
+
 /* FOOTER */
 footer { background: var(--aws-dark); color: white; text-align: center; padding: 1.5rem; font-size: .85rem; margin-top: 2rem; }
 
@@ -116,10 +124,13 @@ footer { background: var(--aws-dark); color: white; text-align: center; padding:
 <!-- ═══════════════════════════════════════════════════════ -->
 <section id="tools">
 <h2>1. Herramientas AWS organizadas por familia de servicio</h2>
+<div class="legend-box">
+  <span><span class="badge-core">⭐ CORE</span> = herramientas del <strong>20% más utilizadas</strong> que cubren el 80% de los casos reales (Principio de Pareto)</span>
+  <span><span class="badge-cert">📋 CERT</span> = herramientas que <strong>SIEMPRE preguntan</strong> en los exámenes de certificación (Solutions Architect / SysOps / Developer)</span>
+</div>
 <p style="margin-bottom:1rem;">
 Cada servicio principal de AWS se muestra como un acordeón desplegable con sus <strong>componentes internos</strong>,
-recursos asociados, CLI y ubicación en consola. Estas son las herramientas que aparecen en las certificaciones
-<em>Solutions Architect Associate, SysOps Administrator</em> y <em>Developer Associate</em>.
+recursos asociados, CLI y ubicación en consola.
 </p>
 <div class="filter-bar">
     <input type="text" id="toolSearch" placeholder="🔍 Buscar herramienta en todas las familias...">
@@ -567,38 +578,44 @@ const serviceFamilies = [
 ];
 
 // ═══════════════════════════════════════════════════════════
+// TOOL FLAGS: ⭐ = Pareto core (20% más usado)  📋 = Cert-critical
+// ⭐📋 = both
+// ═══════════════════════════════════════════════════════════
+const toolFlags={"0-0":"⭐📋","0-1":"⭐","0-2":"⭐📋","0-3":"⭐","0-4":"⭐","0-5":"📋","0-6":"⭐","0-7":"📋","0-8":"📋","0-9":"📋","0-10":"⭐","0-11":"📋","0-12":"⭐","0-13":"📋","0-14":"⭐","1-0":"⭐📋","1-1":"⭐","1-2":"📋","1-3":"⭐📋","1-4":"📋","1-5":"⭐","1-6":"⭐📋","2-0":"⭐📋","2-1":"⭐","2-2":"⭐📋","2-3":"⭐","2-4":"📋","2-5":"⭐📋","2-6":"📋","2-7":"📋","2-8":"📋","2-9":"📋","2-10":"⭐📋","2-11":"📋","2-12":"⭐","2-13":"📋","2-14":"📋","2-15":"📋","2-16":"⭐","2-17":"⭐📋","2-18":"⭐","2-19":"📋","3-0":"⭐","3-1":"📋","3-2":"📋","3-3":"⭐","3-4":"⭐📋","3-5":"⭐","3-6":"📋","3-7":"⭐","4-0":"⭐📋","4-1":"⭐","4-2":"📋","4-3":"⭐","5-0":"⭐📋","5-1":"⭐📋","5-2":"⭐📋","5-3":"⭐📋","5-4":"📋","5-5":"⭐📋","5-6":"📋","5-7":"⭐","5-8":"📋","5-9":"📋","5-10":"📋","5-11":"📋","5-12":"📋","5-13":"📋","5-14":"📋","5-15":"⭐","5-16":"📋","5-17":"📋","5-18":"⭐","5-19":"⭐","6-0":"⭐📋","6-1":"⭐📋","6-2":"📋","6-3":"⭐","6-4":"📋","6-5":"📋","6-6":"📋","6-7":"📋","6-8":"⭐📋","6-9":"📋","6-10":"⭐📋","6-11":"📋","7-0":"⭐📋","7-1":"⭐","7-2":"📋","7-3":"📋","7-4":"📋","7-5":"📋","7-6":"📋","7-7":"⭐","7-8":"📋","8-0":"⭐","8-1":"⭐","8-2":"⭐📋","8-4":"📋","8-5":"📋","8-6":"📋","8-7":"📋","8-8":"📋","8-9":"⭐","8-10":"⭐","9-0":"⭐📋","9-1":"📋","9-2":"📋","9-3":"📋","9-4":"⭐📋","9-5":"⭐","10-0":"📋","10-1":"📋","10-2":"📋","10-3":"📋","10-4":"📋","10-5":"📋","10-6":"⭐","10-7":"⭐","10-8":"📋","10-9":"⭐","10-10":"📋","11-0":"⭐📋","11-1":"⭐","11-2":"📋","11-3":"📋","11-4":"📋","11-5":"📋","11-6":"📋","11-7":"📋","11-8":"📋","12-0":"⭐","12-1":"⭐📋","12-2":"⭐","12-3":"⭐","12-4":"📋","12-5":"📋","12-6":"📋","12-7":"⭐","12-8":"📋","13-0":"⭐📋","13-1":"📋","13-2":"📋","13-3":"📋","13-4":"⭐","13-5":"⭐","13-6":"⭐","13-7":"📋","13-8":"📋","13-9":"📋","13-10":"📋","13-11":"📋","13-12":"📋","14-0":"⭐📋","14-1":"📋","14-2":"📋","14-3":"📋","14-4":"📋","14-5":"📋","14-6":"📋","14-7":"📋","14-8":"📋","15-0":"⭐📋","15-1":"📋","15-2":"📋","15-3":"⭐📋","15-4":"📋","15-5":"📋","15-6":"📋","15-7":"📋","15-8":"📋","15-9":"⭐","15-10":"⭐","15-11":"📋","16-0":"⭐📋","16-1":"⭐📋","16-2":"⭐📋","16-3":"⭐","16-4":"📋","16-5":"⭐","16-6":"📋","16-7":"📋","16-8":"📋","16-9":"📋","16-10":"📋","16-11":"📋","17-0":"📋","17-1":"📋","17-2":"📋","17-3":"📋","17-4":"⭐","17-5":"📋","17-6":"⭐","17-7":"📋","17-8":"📋","17-9":"📋","17-10":"📋","17-11":"📋","17-12":"⭐","18-0":"⭐","18-1":"⭐","18-2":"📋","18-3":"⭐","18-4":"📋","18-5":"📋","18-6":"⭐📋","18-7":"📋","18-8":"📋","18-9":"📋","18-10":"📋","18-11":"📋","18-12":"⭐","19-0":"⭐","19-1":"⭐","19-2":"📋","19-3":"📋","19-4":"📋","19-5":"📋","19-6":"📋","19-7":"⭐","19-8":"📋","19-9":"📋","19-10":"📋","19-11":"📋","19-12":"📋","19-13":"⭐","19-14":"📋","20-0":"📋","20-1":"📋","20-2":"📋","20-3":"📋","20-4":"📋"};
+
+// ═══════════════════════════════════════════════════════════
 // DATA: OPERATIONS
 // ═══════════════════════════════════════════════════════════
 const operationsData = {
     monitoring: [
-        { tag:"Métricas & Logs", title:"Amazon CloudWatch", desc:"Servicio central de monitorización que recopila métricas, logs y eventos de todos los servicios AWS.", use:"- Métricas personalizadas y estándar (CPU, latencia, errores)\n- Logs centralizados con CloudWatch Logs\n- Alarmas que disparan acciones (SNS, Auto Scaling, EC2)\n- Dashboards personalizados para visibilidad en tiempo real\n- CloudWatch Synthetics para pruebas canary\n- Anomaly Detection con ML\n- Contributor Insights: top-N habladores de métricas\n- CloudWatch Logs Insights: consultas SQL-like sobre logs" },
-        { tag:"Auditoría", title:"AWS CloudTrail", desc:"Registra todas las llamadas a la API de AWS (consola, CLI, SDKs) para auditoría, seguridad y cumplimiento.", use:"- Registro de cada acción (quién, qué, cuándo, desde dónde)\n- Integración con S3 y CloudWatch Logs\n- Trails multi-región y de organización\n- CloudTrail Lake para consultas SQL sobre eventos\n- CloudTrail Insights: detección de actividad anómala\n- Esencial para investigaciones forenses de seguridad" },
+        { flags:"⭐📋", tag:"Métricas & Logs", title:"Amazon CloudWatch", desc:"Servicio central de monitorización que recopila métricas, logs y eventos de todos los servicios AWS.", use:"- Métricas personalizadas y estándar (CPU, latencia, errores)\n- Logs centralizados con CloudWatch Logs\n- Alarmas que disparan acciones (SNS, Auto Scaling, EC2)\n- Dashboards personalizados para visibilidad en tiempo real\n- CloudWatch Synthetics para pruebas canary\n- Anomaly Detection con ML\n- Contributor Insights: top-N habladores de métricas\n- CloudWatch Logs Insights: consultas SQL-like sobre logs" },
+        { flags:"📋", tag:"Auditoría", title:"AWS CloudTrail", desc:"Registra todas las llamadas a la API de AWS (consola, CLI, SDKs) para auditoría, seguridad y cumplimiento.", use:"- Registro de cada acción (quién, qué, cuándo, desde dónde)\n- Integración con S3 y CloudWatch Logs\n- Trails multi-región y de organización\n- CloudTrail Lake para consultas SQL sobre eventos\n- CloudTrail Insights: detección de actividad anómala\n- Esencial para investigaciones forenses de seguridad" },
         { tag:"Tracing", title:"AWS X-Ray", desc:"Trazado distribuido para analizar y depurar aplicaciones distribuidas.", use:"- Visualizar el recorrido de una solicitud a través de microservicios\n- Identificar cuellos de botella y errores\n- Mapa de servicio automático\n- Integración con Lambda, ECS, EC2, API Gateway" },
         { tag:"Dashboards", title:"Amazon Managed Grafana", desc:"Servicio gestionado de Grafana para dashboards de observabilidad.", use:"- Visualización de métricas de CloudWatch, Prometheus, X-Ray\n- Dashboards unificados multi-fuente\n- Alertas basadas en reglas de Grafana\n- Integración nativa con SSO de AWS" },
     ],
     governance: [
-        { tag:"Compliance", title:"AWS Config", desc:"Evalúa, audita y evalúa las configuraciones de los recursos AWS de forma continua.", use:"- Inventario continuo de todos los recursos\n- Reglas de compliance (ej: 'S3 buckets no deben ser públicos')\n- Línea de tiempo de cambios de configuración\n- Integración con Systems Manager para remediación automática\n- Conformance Packs para estándares de industria (CIS, PCI-DSS)" },
-        { tag:"Multi-cuenta", title:"AWS Organizations", desc:"Gobernanza centralizada para múltiples cuentas AWS.", use:"- Unidades Organizativas (OUs) jerárquicas\n- Service Control Policies (SCPs): limitan servicios y acciones permitidos\n- Facturación consolidada\n- CloudFormation StackSets multi-cuenta\n- Delegación de administración de servicios" },
-        { tag:"Landing Zone", title:"AWS Control Tower", desc:"Orquesta un landing zone multi-cuenta con mejores prácticas predefinidas.", use:"- Account Factory para creación automatizada de cuentas\n- Guardrails preventivos (SCPs) y detectivos (Config Rules)\n- Single Sign-On integrado con IAM Identity Center\n- Dashboard central de cumplimiento" },
-        { tag:"Mejores prácticas", title:"AWS Trusted Advisor", desc:"Inspecciona el entorno AWS y hace recomendaciones según 5 pilares.", use:"- Optimización de costes (recursos idle, RI/Savings Plans)\n- Seguridad (puertos abiertos, MFA no habilitado)\n- Tolerancia a fallos (AZ balance, backups, Multi-AZ)\n- Rendimiento (EBS infra-provisionado, CloudFront)\n- Límites de servicio\n- 7 checks gratuitos, +100 con planes Business/Enterprise" },
+        { flags:"📋", tag:"Compliance", title:"AWS Config", desc:"Evalúa, audita y evalúa las configuraciones de los recursos AWS de forma continua.", use:"- Inventario continuo de todos los recursos\n- Reglas de compliance (ej: 'S3 buckets no deben ser públicos')\n- Línea de tiempo de cambios de configuración\n- Integración con Systems Manager para remediación automática\n- Conformance Packs para estándares de industria (CIS, PCI-DSS)" },
+        { flags:"📋", tag:"Multi-cuenta", title:"AWS Organizations", desc:"Gobernanza centralizada para múltiples cuentas AWS.", use:"- Unidades Organizativas (OUs) jerárquicas\n- Service Control Policies (SCPs): limitan servicios y acciones permitidos\n- Facturación consolidada\n- CloudFormation StackSets multi-cuenta\n- Delegación de administración de servicios" },
+        { flags:"📋", tag:"Landing Zone", title:"AWS Control Tower", desc:"Orquesta un landing zone multi-cuenta con mejores prácticas predefinidas.", use:"- Account Factory para creación automatizada de cuentas\n- Guardrails preventivos (SCPs) y detectivos (Config Rules)\n- Single Sign-On integrado con IAM Identity Center\n- Dashboard central de cumplimiento" },
+        { flags:"📋", tag:"Mejores prácticas", title:"AWS Trusted Advisor", desc:"Inspecciona el entorno AWS y hace recomendaciones según 5 pilares.", use:"- Optimización de costes (recursos idle, RI/Savings Plans)\n- Seguridad (puertos abiertos, MFA no habilitado)\n- Tolerancia a fallos (AZ balance, backups, Multi-AZ)\n- Rendimiento (EBS infra-provisionado, CloudFront)\n- Límites de servicio\n- 7 checks gratuitos, +100 con planes Business/Enterprise" },
         { tag:"Catálogo", title:"AWS Service Catalog", desc:"Portfolios de productos aprobados para que los equipos desplieguen autónomamente.", use:"- Productos CloudFormation pre-aprobados\n- Autoservicio con límites definidos\n- Control de versiones de productos\n- Integración con IAM para permisos granulares" },
-        { tag:"Postura de seguridad", title:"AWS Security Hub", desc:"Dashboard centralizado de hallazgos de seguridad de todos los servicios AWS.", use:"- Agregación de GuardDuty, Inspector, Macie, Config, Firewall Manager\n- Puntuación de seguridad contra estándares (CIS, AWS Foundations)\n- Automatización de remediación con EventBridge\n- Vista única de postura de seguridad multi-cuenta" },
+        { flags:"📋", tag:"Postura de seguridad", title:"AWS Security Hub", desc:"Dashboard centralizado de hallazgos de seguridad de todos los servicios AWS.", use:"- Agregación de GuardDuty, Inspector, Macie, Config, Firewall Manager\n- Puntuación de seguridad contra estándares (CIS, AWS Foundations)\n- Automatización de remediación con EventBridge\n- Vista única de postura de seguridad multi-cuenta" },
     ],
     automation: [
-        { tag:"Gestión Operativa", title:"AWS Systems Manager (SSM)", desc:"Hub central de operaciones de infraestructura para flotas de servidores.", use:"- Session Manager: acceso SSH/RDP sin bastion host ni puertos abiertos\n- Run Command: ejecutar comandos remotamente en flotas\n- Patch Manager: parcheo automatizado con baselines aprobadas\n- State Manager: mantener configuraciones deseadas\n- Automation: runbooks de remediación\n- Inventory: recopilar metadatos de instancias\n- Parameter Store: almacenamiento jerárquico de configuración\n- Distributor: gestionar agentes y paquetes" },
-        { tag:"Eventos", title:"Amazon EventBridge", desc:"Bus de eventos serverless que conecta aplicaciones con datos de eventos.", use:"- Eventos de servicios AWS y aplicaciones propias\n- Reglas de enrutamiento basadas en patrones de eventos\n- Integración con partners SaaS (Zendesk, Datadog, PagerDuty)\n- Archivo y replay de eventos\n- Schema Registry para descubrimiento automático\n- Pipe: conexiones directas fuente→destino con filtro y transformación" },
-        { tag:"Workflows", title:"AWS Step Functions", desc:"Orquestación visual con máquinas de estado para flujos de trabajo.", use:"- Workflows estándar (hasta 1 año) y express (hasta 5 min, alto throughput)\n- Integración nativa con 200+ servicios AWS\n- Manejo de errores con reintentos, fallbacks y catch\n- Patrones: saga, fan-out, callback, parallel, human approval" },
-        { tag:"IaC", title:"AWS CloudFormation + CDK", desc:"Infraestructura como código declarativa y/o imperativa.", use:"- Templates YAML/JSON declarativos con CloudFormation\n- CDK: abstracciones en TypeScript, Python, Java, Go, C#\n- StackSets para despliegues multi-cuenta y multi-región\n- Drift Detection para detectar cambios manuales\n- Change Sets para previsualizar impacto antes de aplicar" },
+        { flags:"⭐📋", tag:"Gestión Operativa", title:"AWS Systems Manager (SSM)", desc:"Hub central de operaciones de infraestructura para flotas de servidores.", use:"- Session Manager: acceso SSH/RDP sin bastion host ni puertos abiertos\n- Run Command: ejecutar comandos remotamente en flotas\n- Patch Manager: parcheo automatizado con baselines aprobadas\n- State Manager: mantener configuraciones deseadas\n- Automation: runbooks de remediación\n- Inventory: recopilar metadatos de instancias\n- Parameter Store: almacenamiento jerárquico de configuración\n- Distributor: gestionar agentes y paquetes" },
+        { flags:"📋", tag:"Eventos", title:"Amazon EventBridge", desc:"Bus de eventos serverless que conecta aplicaciones con datos de eventos.", use:"- Eventos de servicios AWS y aplicaciones propias\n- Reglas de enrutamiento basadas en patrones de eventos\n- Integración con partners SaaS (Zendesk, Datadog, PagerDuty)\n- Archivo y replay de eventos\n- Schema Registry para descubrimiento automático\n- Pipe: conexiones directas fuente→destino con filtro y transformación" },
+        { flags:"📋", tag:"Workflows", title:"AWS Step Functions", desc:"Orquestación visual con máquinas de estado para flujos de trabajo.", use:"- Workflows estándar (hasta 1 año) y express (hasta 5 min, alto throughput)\n- Integración nativa con 200+ servicios AWS\n- Manejo de errores con reintentos, fallbacks y catch\n- Patrones: saga, fan-out, callback, parallel, human approval" },
+        { flags:"⭐📋", tag:"IaC", title:"AWS CloudFormation + CDK", desc:"Infraestructura como código declarativa y/o imperativa.", use:"- Templates YAML/JSON declarativos con CloudFormation\n- CDK: abstracciones en TypeScript, Python, Java, Go, C#\n- StackSets para despliegues multi-cuenta y multi-región\n- Drift Detection para detectar cambios manuales\n- Change Sets para previsualizar impacto antes de aplicar" },
     ],
     network: [
-        { tag:"Red Virtual", title:"Amazon VPC", desc:"Red privada virtual donde lanzar recursos AWS con control total de red.", use:"- Subredes públicas (con IGW) y privadas (sin IGW)\n- Internet Gateway, NAT Gateway, NAT Instance\n- Security Groups (stateful, nivel instancia) y NACLs (stateless, nivel subred)\n- VPC Peering, Transit Gateway, PrivateLink\n- VPC Endpoints: Gateway (S3/DynamoDB gratis) e Interface (PrivateLink, $/hora)\n- VPN Site-to-Site y Direct Connect para conectividad híbrida\n- Flow Logs para auditoría de tráfico IP" },
-        { tag:"DNS", title:"Amazon Route 53", desc:"DNS altamente disponible, registro de dominios y health checks.", use:"- 8 políticas de enrutamiento: simple, weighted, latency, failover, geolocation, geoproximity, multi-value, IP-based\n- Health checks para failover automático\n- Resolver para DNS híbrido on-premises ⇄ AWS\n- Alias records gratis para recursos AWS (ELB, CloudFront, S3)\n- Hosted zones públicas y privadas" },
-        { tag:"CDN", title:"Amazon CloudFront", desc:"CDN global con 400+ puntos de presencia.", use:"- Baja latencia global con caché en el borde\n- Integración nativa con S3, ALB, Lambda@Edge\n- Lambda@Edge y CloudFront Functions para personalización\n- Origin Shield para reducir carga en orígenes\n- Field-Level Encryption para PII\n- OAI/OAC para acceso seguro a S3 sin bucket público\n- Protección DDoS integrada con AWS Shield" },
+        { flags:"⭐📋", tag:"Red Virtual", title:"Amazon VPC", desc:"Red privada virtual donde lanzar recursos AWS con control total de red.", use:"- Subredes públicas (con IGW) y privadas (sin IGW)\n- Internet Gateway, NAT Gateway, NAT Instance\n- Security Groups (stateful, nivel instancia) y NACLs (stateless, nivel subred)\n- VPC Peering, Transit Gateway, PrivateLink\n- VPC Endpoints: Gateway (S3/DynamoDB gratis) e Interface (PrivateLink, $/hora)\n- VPN Site-to-Site y Direct Connect para conectividad híbrida\n- Flow Logs para auditoría de tráfico IP" },
+        { flags:"⭐📋", tag:"DNS", title:"Amazon Route 53", desc:"DNS altamente disponible, registro de dominios y health checks.", use:"- 8 políticas de enrutamiento: simple, weighted, latency, failover, geolocation, geoproximity, multi-value, IP-based\n- Health checks para failover automático\n- Resolver para DNS híbrido on-premises ⇄ AWS\n- Alias records gratis para recursos AWS (ELB, CloudFront, S3)\n- Hosted zones públicas y privadas" },
+        { flags:"⭐📋", tag:"CDN", title:"Amazon CloudFront", desc:"CDN global con 400+ puntos de presencia.", use:"- Baja latencia global con caché en el borde\n- Integración nativa con S3, ALB, Lambda@Edge\n- Lambda@Edge y CloudFront Functions para personalización\n- Origin Shield para reducir carga en orígenes\n- Field-Level Encryption para PII\n- OAI/OAC para acceso seguro a S3 sin bucket público\n- Protección DDoS integrada con AWS Shield" },
         { tag:"Aceleración", title:"AWS Global Accelerator", desc:"Mejora disponibilidad y rendimiento usando la red global de AWS.", use:"- IPs anycast estáticas (2) como punto de entrada único\n- Enrutamiento inteligente por el backbone de AWS\n- Failover en <30 segundos\n- Ideal para gaming, VoIP, trading, aplicaciones globales\n- Integración con ALB, NLB, EC2, Elastic IP" },
     ],
     cost: [
-        { tag:"Presupuestos", title:"AWS Budgets", desc:"Define presupuestos de coste, uso, Savings Plans y Reservas.", use:"- Alertas cuando el gasto se aproxima o supera el umbral\n- Tipos: Cost, Usage, Savings Plans, Reservation\n- Acciones automáticas: detener instancias, restringir IAM\n- Informes diarios, mensuales, trimestrales" },
-        { tag:"Explorador", title:"AWS Cost Explorer", desc:"Visualiza, analiza y gestiona el gasto de AWS con tendencias y previsiones.", use:"- Gráficos de tendencias y dashboards de coste\n- Filtros por servicio, región, tag, tipo de compra\n- Previsiones basadas en ML y datos históricos\n- Recomendaciones de Savings Plans y Reserved Instances\n- Informes horarios y diarios con granularidad de recursos" },
+        { flags:"⭐", tag:"Presupuestos", title:"AWS Budgets", desc:"Define presupuestos de coste, uso, Savings Plans y Reservas.", use:"- Alertas cuando el gasto se aproxima o supera el umbral\n- Tipos: Cost, Usage, Savings Plans, Reservation\n- Acciones automáticas: detener instancias, restringir IAM\n- Informes diarios, mensuales, trimestrales" },
+        { flags:"⭐", tag:"Explorador", title:"AWS Cost Explorer", desc:"Visualiza, analiza y gestiona el gasto de AWS con tendencias y previsiones.", use:"- Gráficos de tendencias y dashboards de coste\n- Filtros por servicio, región, tag, tipo de compra\n- Previsiones basadas en ML y datos históricos\n- Recomendaciones de Savings Plans y Reserved Instances\n- Informes horarios y diarios con granularidad de recursos" },
         { tag:"Informe detallado", title:"Cost & Usage Report (CUR)", desc:"Informe granular de costes y uso entregado diariamente en S3.", use:"- Datos por hora y por recurso individual\n- Integración con Athena, Redshift y QuickSight\n- Tags de asignación de costes para showback/chargeback\n- Base para herramientas FinOps de terceros" },
         { tag:"Anomalías", title:"AWS Cost Anomaly Detection", desc:"Detección automática de picos anómalos en el gasto con ML.", use:"- Machine learning para identificar gastos inusuales\n- Alertas por email o SNS con causa raíz\n- Reduce sustos de factura inesperada\n- Monitorea por servicio, cuenta, región o tag" },
         { tag:"Calculadora", title:"AWS Pricing Calculator", desc:"Herramienta web para estimar costes de arquitecturas AWS.", use:"- Estimaciones detalladas por servicio y configuración\n- Exportar a CSV/PDF para presupuestos\n- Comparar escenarios (ej: on-demand vs Reserved vs Spot)\n- Cubre todos los servicios principales\n- Acceso: aws.amazon.com/calculator" },
@@ -739,12 +756,18 @@ function renderFamilies(filter = "", familyFilterVal = "") {
                 <table>
                     <thead><tr><th>Herramienta</th><th>Descripción</th><th>Caso de Uso</th><th>Comando / Ubicación</th></tr></thead>
                     <tbody>
-                    ${filteredTools.map(t => `<tr>
-                        <td>${t[0]}</td>
+                    ${filteredTools.map((t, ti) => {
+                        const flag = toolFlags[`${idx}-${ti}`] || '';
+                        const badges = [];
+                        if (flag.includes('⭐')) badges.push('<span class="badge-core">⭐ CORE</span>');
+                        if (flag.includes('📋')) badges.push('<span class="badge-cert">📋 CERT</span>');
+                        return `<tr>
+                        <td>${t[0]}${badges.join('')}</td>
                         <td>${t[1]}</td>
                         <td>${t[2]}</td>
                         <td><code>${t[3]}</code></td>
-                    </tr>`).join('')}
+                    </tr>`;
+                    }).join('')}
                     </tbody>
                 </table>
                 <div class="sf-meta">${filteredTools.length} herramienta(s) · Dominio: ${family.domain}</div>
@@ -787,14 +810,21 @@ function renderOperations() {
     for (const [key, items] of Object.entries(operationsData)) {
         const container = document.getElementById(key + 'Cards');
         if (!container) continue;
-        container.innerHTML = items.map(item => `
+        container.innerHTML = items.map(item => {
+            let badgesHtml = '';
+            if (item.flags) {
+                if (item.flags.includes('⭐')) badgesHtml += '<span class="badge-core">⭐ CORE</span> ';
+                if (item.flags.includes('📋')) badgesHtml += '<span class="badge-cert">📋 CERT</span> ';
+            }
+            return `
             <div class="card">
                 <span class="tag">${item.tag}</span>
-                <h4>${item.title}</h4>
+                <h4>${item.title}${badgesHtml ? '<div class="card-badges">'+badgesHtml+'</div>' : ''}</h4>
                 <p>${item.desc}</p>
                 <ul>${item.use.split('\n').filter(l => l.trim()).map(l => `<li>${l.replace(/^- /,'')}</li>`).join('')}</ul>
             </div>
-        `).join('');
+        `;
+    }).join('');
     }
 }
 
